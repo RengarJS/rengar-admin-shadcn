@@ -17,8 +17,8 @@
           <div class="grid grid-cols-2 gap-3">
             <button
               type="button"
-              class="flex flex-col items-center gap-3 rounded-md border border-transparent p-2 text-sm transition-colors hover:bg-accent"
-              :class="{ 'border-primary': userConfig.layoutMode === 'aside' }"
+              class="flex flex-col items-center gap-3 rounded-md border p-2 text-sm transition-colors hover:bg-accent"
+              :class="userConfig.layoutMode === 'aside' ? 'border-primary' : 'border-transparent'"
               :aria-pressed="userConfig.layoutMode === 'aside'"
               @click="handleChangeLayout('aside')"
             >
@@ -33,8 +33,8 @@
             </button>
             <button
               type="button"
-              class="flex flex-col items-center gap-3 rounded-md border border-transparent p-2 text-sm transition-colors hover:bg-accent"
-              :class="{ 'border-primary': userConfig.layoutMode === 'top' }"
+              class="flex flex-col items-center gap-3 rounded-md border p-2 text-sm transition-colors hover:bg-accent"
+              :class="userConfig.layoutMode === 'top' ? 'border-primary' : 'border-transparent'"
               :aria-pressed="userConfig.layoutMode === 'top'"
               @click="handleChangeLayout('top')"
             >
@@ -46,8 +46,8 @@
             </button>
             <button
               type="button"
-              class="flex flex-col items-center gap-3 rounded-md border border-transparent p-2 text-sm transition-colors hover:bg-accent"
-              :class="{ 'border-primary': userConfig.layoutMode === 'top-aside' }"
+              class="flex flex-col items-center gap-3 rounded-md border p-2 text-sm transition-colors hover:bg-accent"
+              :class="userConfig.layoutMode === 'top-aside' ? 'border-primary' : 'border-transparent'"
               :aria-pressed="userConfig.layoutMode === 'top-aside'"
               @click="handleChangeLayout('top-aside')"
             >
@@ -62,8 +62,8 @@
             </button>
             <button
               type="button"
-              class="flex flex-col items-center gap-3 rounded-md border border-transparent p-2 text-sm transition-colors hover:bg-accent"
-              :class="{ 'border-primary': userConfig.layoutMode === 'aside-double' }"
+              class="flex flex-col items-center gap-3 rounded-md border p-2 text-sm transition-colors hover:bg-accent"
+              :class="userConfig.layoutMode === 'aside-double' ? 'border-primary' : 'border-transparent'"
               :aria-pressed="userConfig.layoutMode === 'aside-double'"
               @click="handleChangeLayout('aside-double')"
             >
