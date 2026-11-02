@@ -29,7 +29,7 @@
       <aside
         v-if="showAppAside"
         class="shrink-0 overflow-y-auto border-r"
-        :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-sidebar text-sidebar-foreground'"
+        :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-popover text-popover-foreground'"
         :style="{
           width: numberToPx(systemConfig.asideCollapse ? systemConfig.asideCollapseWidth : userConfig.asideWidth),
         }"

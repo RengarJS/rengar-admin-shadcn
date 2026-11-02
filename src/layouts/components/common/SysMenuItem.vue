@@ -1,9 +1,9 @@
 <template>
-  <div class="relative min-w-0" :class="mode === 'horizontal' ? 'group/menu-item' : ''">
+  <div class="relative min-w-0" :class="mode === 'horizontal' ? 'group/menu-item' : 'mt-1.5 first:mt-0'">
     <RouterLink
       v-if="isLeaf && !route.meta?.href"
       :to="routeTo"
-      class="flex min-h-9 min-w-0 items-center gap-3 rounded-md px-3 py-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
+      class="flex h-[42px] min-w-0 items-center gap-3 rounded-md px-3 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
       :class="[
         activeKey === active ? 'bg-primary/10 font-medium text-primary' : '',
         collapsed ? 'justify-center px-2' : '',
@@ -20,7 +20,7 @@
       v-else-if="route.meta?.href"
       :href="route.meta.href"
       target="_blank"
-      class="flex min-h-9 min-w-0 items-center gap-3 rounded-md px-3 py-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
+      class="flex h-[42px] min-w-0 items-center gap-3 rounded-md px-3 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
       :class="[
         activeKey === active ? 'bg-primary/10 font-medium text-primary' : '',
         collapsed ? 'justify-center px-2' : '',
@@ -36,7 +36,7 @@
     <button
       v-else
       type="button"
-      class="flex min-h-9 w-full min-w-0 items-center gap-3 rounded-md px-3 py-2 text-left text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
+      class="flex h-[42px] w-full min-w-0 items-center gap-3 rounded-md px-3 text-left text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
       :class="[
         activeKey === active ? 'bg-primary/10 font-medium text-primary' : '',
         collapsed ? 'justify-center px-2' : '',
@@ -53,8 +53,15 @@
 
     <div
       v-if="children.length && open"
-      class="z-50 mt-1 min-w-48 rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
-      :class="mode === 'horizontal' || collapsed ? 'absolute left-full top-0 ml-1' : 'ml-5 border-l-0 pl-2 shadow-none'"
+      class="z-50"
+      :class="
+        mode === 'horizontal' || collapsed
+          ? [
+              'absolute left-full top-0 ml-1 mt-1 min-w-48 rounded-md border p-1 shadow-md',
+              inverted ? 'border-white/10 bg-zinc-900 text-zinc-100' : 'bg-popover text-popover-foreground',
+            ]
+          : 'ml-5 min-w-0 pl-2'
+      "
     >
       <SysMenuItem
         v-for="child in children"

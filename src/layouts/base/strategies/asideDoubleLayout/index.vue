@@ -3,7 +3,7 @@
     <aside
       v-if="isPc"
       class="z-10 h-full shrink-0 border-r"
-      :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-sidebar text-sidebar-foreground'"
+      :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-popover text-popover-foreground'"
       :style="{
         width: numberToPx(
           systemConfig.asideCollapse ? systemConfig.asideCollapseWidth : systemConfig.doubleFirstAideWidth,
@@ -28,7 +28,7 @@
     <aside
       v-if="isPc && userConfig.fixedSubMenu && showSecondAside"
       class="z-10 h-full shrink-0 border-r"
-      :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-sidebar text-sidebar-foreground'"
+      :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-popover text-popover-foreground'"
       :style="{
         width: numberToPx(systemConfig.asideCollapse ? systemConfig.asideCollapseWidth : userConfig.asideWidth),
       }"
@@ -100,7 +100,7 @@
         v-if="isPc && showSubMenu && !userConfig.fixedSubMenu && showSecondAside"
         ref="target"
         class="absolute bottom-0 left-0 top-0 z-20 shadow-lg"
-        :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-sidebar text-sidebar-foreground'"
+        :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-popover text-popover-foreground'"
         :style="{ width: numberToPx(userConfig.asideWidth) }"
       >
         <header class="flex border-b" :style="{ height: numberToPx(userConfig.headerHeight) }">

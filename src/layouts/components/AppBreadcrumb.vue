@@ -7,12 +7,10 @@
             <MenuIcon :options="item.meta" />
             <span>{{ item.meta.title }}</span>
           </BreadcrumbPage>
-          <BreadcrumbLink v-else as-child>
-            <RouterLink :to="getBreadcrumbRoute(item.name)" class="flex items-center gap-1">
-              <MenuIcon :options="item.meta" />
-              <span>{{ item.meta.title }}</span>
-            </RouterLink>
-          </BreadcrumbLink>
+          <span v-else class="flex items-center gap-1 text-muted-foreground">
+            <MenuIcon :options="item.meta" />
+            <span>{{ item.meta.title }}</span>
+          </span>
         </BreadcrumbItem>
         <BreadcrumbSeparator v-if="index < breadcrumb.length - 1" />
       </template>
@@ -22,12 +20,10 @@
 
 <script setup lang="ts">
 const route = useRoute()
-import { RouterLink, type RouteLocationRaw, type RouteRecordName } from 'vue-router'
 import MenuIcon from '@/components/MenuIcon/index.vue'
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -35,10 +31,6 @@ import {
 const breadcrumb = computed(() => {
   return route.matched
 })
-
-function getBreadcrumbRoute(name: RouteRecordName): RouteLocationRaw {
-  return { name } as RouteLocationRaw
-}
 </script>
 
 <style scoped></style>

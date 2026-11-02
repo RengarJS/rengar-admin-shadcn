@@ -23,51 +23,53 @@
         name="fade"
         class="sort-target h-full w-max flex select-none gap-4 px-4 pt-1 text-sm"
       >
-        <ContextMenu v-for="(item, index) in tabsList" :key="item.fullPath">
-          <ContextMenuTrigger as-child>
-            <div
-              class="tab-item px-3 py-1"
-              :class="[
-                item.fullPath === route.fullPath
-                  ? 'text-primary dark:text-white bg-primary-100 dark:bg-primary-700'
-                  : '',
-              ]"
-              :ref="(el) => setItemRef(el as HTMLElement, item.fullPath)"
-              @click="handleJump(item.fullPath)"
-            >
+        <div v-for="(item, index) in tabsList" :key="item.fullPath" class="inline-flex">
+          <ContextMenu>
+            <ContextMenuTrigger as-child>
               <div
-                class="flex items-center gap-2 rounded-lg px-3 py-1"
-                :class="[item.fullPath === route.fullPath ? '' : 'hover:bg-zinc-100 dark:hover:bg-zinc-700']"
+                class="tab-item px-3 py-1"
+                :class="[
+                  item.fullPath === route.fullPath
+                    ? 'text-primary dark:text-white bg-primary-100 dark:bg-primary-700'
+                    : '',
+                ]"
+                :ref="(el) => setItemRef(el as HTMLElement, item.fullPath)"
+                @click="handleJump(item.fullPath)"
               >
-                <MenuIcon :options="item" class="handle cursor-move" />
-                <div class="max-w-[60px] truncate whitespace-nowrap">{{ item.title }}</div>
-                <button
-                  v-if="!item.fixedInTab"
-                  type="button"
-                  class="group/tab-close relative inline-flex size-5 cursor-pointer items-center justify-center text-lg"
-                  aria-label="关闭标签"
-                  @click.stop="tabStore.removeTabsAction(item)"
+                <div
+                  class="flex items-center gap-2 rounded-lg px-3 py-1"
+                  :class="[item.fullPath === route.fullPath ? '' : 'hover:bg-zinc-100 dark:hover:bg-zinc-700']"
                 >
-                  <CloseTabIcon class="absolute group-hover/tab-close:hidden" />
-                  <CloseTabHoverIcon class="absolute hidden group-hover/tab-close:block" />
-                </button>
+                  <MenuIcon :options="item" class="handle cursor-move" />
+                  <div class="max-w-[60px] truncate whitespace-nowrap">{{ item.title }}</div>
+                  <button
+                    v-if="!item.fixedInTab"
+                    type="button"
+                    class="group/tab-close relative inline-flex size-5 cursor-pointer items-center justify-center text-lg"
+                    aria-label="关闭标签"
+                    @click.stop="tabStore.removeTabsAction(item)"
+                  >
+                    <CloseTabIcon class="absolute group-hover/tab-close:hidden" />
+                    <CloseTabHoverIcon class="absolute hidden group-hover/tab-close:block" />
+                  </button>
+                </div>
               </div>
-            </div>
-          </ContextMenuTrigger>
-          <ContextMenuContent>
-            <ContextMenuItem :disabled="Boolean(item.fixedInTab)" @select="handleSelect('closeCurrent', item)">
-              <IconClose />关闭
-            </ContextMenuItem>
-            <ContextMenuItem @select="handleSelect('closeOther', item)"> <IconCloseOther />关闭其它 </ContextMenuItem>
-            <ContextMenuItem :disabled="index === 0" @select="handleSelect('closeLeft', item)">
-              <IconCloseLeft />关闭左侧
-            </ContextMenuItem>
-            <ContextMenuItem :disabled="index === tabsList.length - 1" @select="handleSelect('closeRight', item)">
-              <IconCloseRight />关闭右侧
-            </ContextMenuItem>
-            <ContextMenuItem @select="handleSelect('closeAll', item)"> <IconCloseAll />关闭所有 </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenu>
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+              <ContextMenuItem :disabled="Boolean(item.fixedInTab)" @select="handleSelect('closeCurrent', item)">
+                <IconClose />关闭
+              </ContextMenuItem>
+              <ContextMenuItem @select="handleSelect('closeOther', item)"> <IconCloseOther />关闭其它 </ContextMenuItem>
+              <ContextMenuItem :disabled="index === 0" @select="handleSelect('closeLeft', item)">
+                <IconCloseLeft />关闭左侧
+              </ContextMenuItem>
+              <ContextMenuItem :disabled="index === tabsList.length - 1" @select="handleSelect('closeRight', item)">
+                <IconCloseRight />关闭右侧
+              </ContextMenuItem>
+              <ContextMenuItem @select="handleSelect('closeAll', item)"> <IconCloseAll />关闭所有 </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
+        </div>
       </TransitionGroup>
     </VueDraggable>
 

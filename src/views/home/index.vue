@@ -156,7 +156,9 @@
           <CardTitle>访问量趋势</CardTitle>
         </CardHeader>
         <CardContent>
-          <VChart class="h-80 w-full" animate :option="visitOption" autoresize />
+          <div ref="visitChartContainer" class="h-80 min-w-0 w-full">
+            <VChart v-if="chartsReady" class="h-full w-full" animate :option="visitOption" autoresize />
+          </div>
         </CardContent>
       </Card>
 
@@ -165,7 +167,9 @@
           <CardTitle>用户分布</CardTitle>
         </CardHeader>
         <CardContent>
-          <VChart class="h-80 w-full" :option="pieOption" autoresize />
+          <div ref="pieChartContainer" class="h-80 min-w-0 w-full">
+            <VChart v-if="chartsReady" class="h-full w-full" :option="pieOption" autoresize />
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -207,7 +211,7 @@ import { SVGRenderer } from 'echarts/renderers'
 import { LineChart, PieChart } from 'echarts/charts'
 import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from 'echarts/components'
 import VChart from 'vue-echarts'
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -342,6 +346,11 @@ const refreshData = () => {
   window.$message.success('数据已刷新')
   // 这里可以添加实际的数据刷新逻辑
 }
+
+const visitChartContainer = ref<HTMLElement | null>(null)
+const pieChartContainer = ref<HTMLElement | null>(null)
+const chartsReady = ref(false)
+let chartResizeObserver: ResizeObserver | undefined
 
 // 打开外部链接函数
 const openLink = (url: string) => {
@@ -609,6 +618,28 @@ const clearCompletedTodos = () => {
 
 // 从本地存储加载待办事项
 onMounted(() => {
+  const chartContainers = [visitChartContainer.value, pieChartContainer.value].filter(
+    (container): container is HTMLElement => container !== null,
+  )
+
+  if (typeof ResizeObserver === 'undefined') {
+    chartsReady.value = true
+  } else {
+    chartResizeObserver = new ResizeObserver(() => {
+      const allContainersHaveSize = chartContainers.every((container) => {
+        const { width, height } = container.getBoundingClientRect()
+        return width > 0 && height > 0
+      })
+
+      if (allContainersHaveSize) {
+        chartsReady.value = true
+        chartResizeObserver?.disconnect()
+      }
+    })
+
+    chartContainers.forEach((container) => chartResizeObserver?.observe(container))
+  }
+
   const savedTodos = localStorage.getItem('todos')
   if (savedTodos) {
     try {
@@ -618,6 +649,8 @@ onMounted(() => {
     }
   }
 })
+
+onBeforeUnmount(() => chartResizeObserver?.disconnect())
 
 // 监听待办事项变化，保存到本地存储
 watch(

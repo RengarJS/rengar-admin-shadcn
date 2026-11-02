@@ -1,6 +1,6 @@
 <template>
   <nav
-    :class="mode === 'horizontal' ? 'flex min-w-0 items-center gap-1' : 'flex min-w-0 flex-col gap-1 p-2'"
+    :class="mode === 'horizontal' ? 'flex min-w-0 items-center gap-1' : 'flex min-w-0 flex-col p-2'"
     :aria-label="mode === 'horizontal' ? '主导航' : '侧边导航'"
   >
     <SysMenuItem

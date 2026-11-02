@@ -111,7 +111,7 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@/views/example/href/index.vue'),
         meta: {
           title: '外部链接',
-          href: 'https://www.shadcn-vue.com/',
+          href: 'https://www.naiveui.com/zh-CN/os-theme',
           order: 2,
         },
       },
@@ -160,14 +160,19 @@ export const routes: RouteRecordRaw[] = [
         path: 'menu',
         component: () => import('@/views/setting/menu/index.vue'),
         meta: {
-          title: 'setting_menu',
+          title: '菜单设置',
+          order: 1,
+          roles: 'menu0002',
         },
       },
       {
         name: 'setting-permission',
         path: 'permission',
+        redirect: '/setting/permission/list',
         meta: {
-          title: 'setting_permission',
+          title: '权限管理',
+          order: 4,
+          roles: 'menu0005',
         },
         children: [
           {
@@ -175,7 +180,8 @@ export const routes: RouteRecordRaw[] = [
             path: 'list',
             component: () => import('@/views/setting/permission/list/index.vue'),
             meta: {
-              title: 'setting_permission_list',
+              title: '权限列表',
+              hideInMenu: true,
             },
           },
         ],
@@ -195,7 +201,10 @@ export const routes: RouteRecordRaw[] = [
             path: 'config/:id',
             component: () => import('@/views/setting/role/config/[id].vue'),
             meta: {
-              title: 'setting_role_config',
+              title: '角色配置',
+              hideInMenu: true,
+              activeMenu: 'setting-role',
+              roles: 'menu0007',
             },
           },
           {
@@ -203,7 +212,10 @@ export const routes: RouteRecordRaw[] = [
             path: 'list',
             component: () => import('@/views/setting/role/list/index.vue'),
             meta: {
-              title: 'setting_role_list',
+              title: '角色列表',
+              hideInMenu: true,
+              activeMenu: 'setting-role',
+              roles: 'menu0006',
             },
           },
         ],
@@ -213,7 +225,9 @@ export const routes: RouteRecordRaw[] = [
         path: 'user',
         component: () => import('@/views/setting/user/index.vue'),
         meta: {
-          title: 'setting_user',
+          title: '用户管理',
+          roles: 'menu0004',
+          order: 3,
         },
       },
     ],

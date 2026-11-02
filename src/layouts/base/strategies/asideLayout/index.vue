@@ -3,7 +3,7 @@
     <aside
       v-if="isPc"
       class="z-10 h-full shrink-0 border-r"
-      :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-sidebar text-sidebar-foreground'"
+      :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-popover text-popover-foreground'"
       :style="{
         width: numberToPx(systemConfig.asideCollapse ? systemConfig.asideCollapseWidth : userConfig.asideWidth),
       }"
