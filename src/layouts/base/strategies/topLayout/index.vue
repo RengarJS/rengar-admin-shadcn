@@ -41,6 +41,7 @@
         class="absolute inset-x-0 bottom-0 z-[1] border-t bg-background"
         :style="{
           height: numberToPx(userConfig.footerHeight),
+          backgroundColor: appStore.theme === 'light' ? bgColor : 'transparent',
         }"
       >
         <AppFooter />
@@ -55,6 +56,7 @@
 
 <script setup lang="ts">
 import { useAppStore, useMenuStore } from '@/stores'
+import { bgColor } from '@/config/app'
 import { numberToPx } from '@/utils/tools'
 import AppFooter from '@/layouts/components/AppFooter.vue'
 import AppTabs from '@/layouts/components/AppTabs.vue'
@@ -74,6 +76,7 @@ const layoutContentStyle = computed(() => {
     top: `calc(${numberToPx(userConfig.value.headerHeight)} + ${userConfig.value.showTabs ? numberToPx(userConfig.value.tabHeight) : '0px'})`,
     bottom: userConfig.value.showFooter ? numberToPx(userConfig.value.footerHeight) : '0px',
     padding: numberToPx(userConfig.value.gap),
+    backgroundColor: appStore.theme === 'light' ? bgColor : 'transparent',
   }
   return style
 })

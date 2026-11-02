@@ -149,3 +149,32 @@
     @apply bg-background text-foreground;
   }
 }
+
+* {
+  scrollbar-color: color-mix(in srgb, var(--el-text-color-secondary) 22%, transparent) transparent;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: color-mix(in srgb, var(--el-scrollbar-bg-color, var(--el-text-color-secondary)) 22%, transparent);
+  transition: var(--el-transition-duration) background-color;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--el-scrollbar-hover-bg-color, var(--el-text-color-secondary)) 22%,
+    transparent
+  );
+}

@@ -19,4 +19,6 @@ const userConfig: App.UserConfig = {
   fixedSubMenu: true,
 }
 
+export const bgColor = '#f8fafc'
+
 export { userConfig }
