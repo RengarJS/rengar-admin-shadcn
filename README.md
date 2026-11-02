@@ -1,6 +1,6 @@
-[![Stars](https://img.shields.io/github/stars/RengarJS/rengar-admin.svg?style=social&label=Star)](https://github.com/RengarJS/rengar-admin/stargazers)
-[![Forks](https://img.shields.io/github/forks/RengarJS/rengar-admin.svg?style=social&label=Fork)](https://github.com/RengarJS/rengar-admin/network/members)
-[![License](https://img.shields.io/github/license/RengarJS/rengar-admin.svg?color=green)](https://github.com/RengarJS/rengar-admin/blob/main/LICENSE.txt)
+[![Stars](https://img.shields.io/github/stars/RengarJS/rengar-admin-shadcn.svg?style=social&label=Star)](https://github.com/RengarJS/rengar-admin-shadcn/stargazers)
+[![Forks](https://img.shields.io/github/forks/RengarJS/rengar-admin-shadcn.svg?style=social&label=Fork)](https://github.com/RengarJS/rengar-admin-shadcn/network/members)
+[![License](https://img.shields.io/github/license/RengarJS/rengar-admin-shadcn.svg?color=green)](https://github.com/RengarJS/rengar-admin-shadcn/blob/main/LICENSE.txt)
 
 [项目文档](https://www.rengar.site/doc)
 
