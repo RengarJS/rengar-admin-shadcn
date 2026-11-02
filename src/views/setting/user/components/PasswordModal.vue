@@ -1,92 +1,94 @@
 <template>
-  <NModal
-    v-model:show="show"
-    preset="dialog"
-    title="修改密码"
-    positive-text="确定"
-    negative-text="取消"
-    :loading
-    @after-enter="handleOpen"
-    @after-leave="handleClose"
-    @positive-click="handleSubmit"
-  >
-    <NForm ref="formRef" :model="formValue" :rules class="my-8" size="small" label-placement="left" label-width="auto">
-      <NFormItem path="newPassword" label="新密码">
-        <NInput v-model:value="formValue.newPassword" type="password" placeholder="请输入新密码" />
-      </NFormItem>
-      <NFormItem path="confirmPassword" label="确认密码">
-        <NInput v-model:value="formValue.confirmPassword" type="password" placeholder="请再次输入新密码" />
-      </NFormItem>
-    </NForm>
-  </NModal>
+  <Dialog :open="show" @update:open="handleOpenChange">
+    <DialogContent class="sm:max-w-md">
+      <DialogHeader><DialogTitle>修改密码</DialogTitle></DialogHeader>
+      <form class="my-4 grid gap-4" @submit.prevent="handleSubmit">
+        <div class="grid gap-2">
+          <Label for="reset-new-password">新密码</Label>
+          <Input
+            id="reset-new-password"
+            v-model="formValue.newPassword"
+            type="password"
+            placeholder="请输入新密码"
+            :aria-invalid="!!errors.newPassword"
+            @blur="validateField('newPassword')"
+            @input="validateField('newPassword')"
+          />
+          <p v-if="errors.newPassword" class="text-sm text-destructive">{{ errors.newPassword }}</p>
+        </div>
+        <div class="grid gap-2">
+          <Label for="reset-confirm-password">确认密码</Label>
+          <Input
+            id="reset-confirm-password"
+            v-model="formValue.confirmPassword"
+            type="password"
+            placeholder="请再次输入新密码"
+            :aria-invalid="!!errors.confirmPassword"
+            @blur="validateField('confirmPassword')"
+            @input="validateField('confirmPassword')"
+          />
+          <p v-if="errors.confirmPassword" class="text-sm text-destructive">{{ errors.confirmPassword }}</p>
+        </div>
+        <DialogFooter>
+          <Button type="button" variant="outline" :disabled="loading" @click="handleOpenChange(false)">取消</Button>
+          <Button type="submit" :disabled="loading"><Spinner v-if="loading" class="mr-2 size-4" />确定</Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
+  </Dialog>
 </template>
 
-<script setup lang="tsx">
+<script setup lang="ts">
 import { userPasswordApi } from '@/api/setting/user'
-
-import { type FormRules, type FormInst } from 'naive-ui'
 import { to } from 'await-to-js'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Spinner } from '@/components/ui/spinner'
 
-const show = defineModel<boolean>('show', {
-  required: true,
-})
+const show = defineModel<boolean>('show', { required: true })
+const { record } = defineProps<{ record?: Api.Setting.User }>()
 
-const { record } = defineProps<{
-  record?: Api.Setting.User
-}>()
+const formValue = ref<Api.Setting.PasswordDTO>({ id: 0, newPassword: '', confirmPassword: '' })
+const errors = reactive({ newPassword: '', confirmPassword: '' })
+const loading = ref(false)
 
-const formValue = ref<Api.Setting.PasswordDTO>({
-  id: 0,
-  newPassword: '',
-  confirmPassword: '',
-})
-const formRef = useTemplateRef<FormInst>('formRef')
-const rules: FormRules = {
-  newPassword: {
-    required: true,
-    message: '请输入新密码',
-    trigger: ['blur', 'input'],
-  },
-  confirmPassword: {
-    required: true,
-    validator: (_, value: string) => {
-      if (!value) {
-        return new Error('请再次输入新密码')
-      }
-      if (value !== formValue.value.newPassword) {
-        return new Error('两次输入的密码不一致')
-      }
-      return true
-    },
-    trigger: ['blur', 'input'],
-  },
+function validateField(field: keyof typeof errors) {
+  if (field === 'newPassword' && !formValue.value.newPassword) errors.newPassword = '请输入新密码'
+  else if (field === 'confirmPassword' && !formValue.value.confirmPassword) errors.confirmPassword = '请再次输入新密码'
+  else if (field === 'confirmPassword' && formValue.value.confirmPassword !== formValue.value.newPassword)
+    errors.confirmPassword = '两次输入的密码不一致'
+  else errors[field] = ''
+  return !errors[field]
+}
+
+function handleOpenChange(open: boolean) {
+  show.value = open
 }
 
 function handleClose() {
-  formValue.value = {
-    id: 0,
-    newPassword: '',
-    confirmPassword: '',
-  }
+  formValue.value = { id: 0, newPassword: '', confirmPassword: '' }
+  errors.newPassword = ''
+  errors.confirmPassword = ''
 }
 
 function handleOpen() {
-  if (record) {
-    formValue.value.id = record.id
-  }
+  if (record) formValue.value.id = record.id
 }
 
-const loading = ref(false)
+watch(show, (open) => {
+  if (open) handleOpen()
+  else handleClose()
+})
+
 async function handleSubmit() {
-  const [validErr] = await to(formRef.value!.validate())
-  if (validErr) return false
+  if (![validateField('newPassword'), validateField('confirmPassword')].every(Boolean)) return
   loading.value = true
   const [err] = await to(userPasswordApi(unref(formValue)))
   loading.value = false
   if (err) return
   window.$message?.success('修改密码成功')
-  return true
+  show.value = false
 }
 </script>
-
-<style scoped></style>

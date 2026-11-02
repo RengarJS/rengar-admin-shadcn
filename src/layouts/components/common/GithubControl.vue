@@ -1,19 +1,31 @@
 <template>
-  <NTooltip v-if="appStore.isPc" placement="bottom">
-    <template #trigger>
-      <div class="flex-center cursor-pointer rounded-sm p-1 hover:text-primary" @click="jumpToGithub">
-        <IMdiGithub></IMdiGithub>
-      </div>
-    </template>
-    <span>github</span>
-  </NTooltip>
-  <div v-else class="flex-center cursor-pointer rounded-sm p-1 hover:text-primary" @click="jumpToGithub">
-    <IMdiGithub></IMdiGithub>
-  </div>
+  <TooltipProvider>
+    <Tooltip v-if="appStore.isPc">
+      <TooltipTrigger as-child>
+        <button
+          type="button"
+          class="flex cursor-pointer items-center justify-center rounded-sm p-1 hover:text-primary"
+          @click="jumpToGithub"
+        >
+          <IMdiGithub></IMdiGithub>
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">github</TooltipContent>
+    </Tooltip>
+    <button
+      v-else
+      type="button"
+      class="flex cursor-pointer items-center justify-center rounded-sm p-1 hover:text-primary"
+      @click="jumpToGithub"
+    >
+      <IMdiGithub></IMdiGithub>
+    </button>
+  </TooltipProvider>
 </template>
 
 <script setup lang="ts">
 import { useAppStore } from '@/stores'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 const appStore = useAppStore()
 
 function jumpToGithub() {

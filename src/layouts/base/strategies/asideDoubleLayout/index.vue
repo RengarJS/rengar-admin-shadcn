@@ -1,28 +1,20 @@
 <template>
-  <NLayout embedded has-sider class="h-screen">
-    <NLayoutSider
+  <div class="relative flex h-viewport w-full overflow-hidden bg-background">
+    <aside
       v-if="isPc"
-      :inverted="userConfig.invertedAside"
-      :width="systemConfig.doubleFirstAideWidth"
-      bordered
+      class="z-10 h-full shrink-0 border-r"
+      :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-sidebar text-sidebar-foreground'"
       :style="{
-        zIndex: 2,
+        width: numberToPx(
+          systemConfig.asideCollapse ? systemConfig.asideCollapseWidth : systemConfig.doubleFirstAideWidth,
+        ),
       }"
-      collapse-mode="width"
-      :collapsed="systemConfig.asideCollapse"
-      :collapsed-width="systemConfig.asideCollapseWidth"
-      content-style="min-width: 0"
     >
-      <div class="h-full w-full flex flex-col">
-        <div
-          :style="{
-            height: numberToPx(userConfig.headerHeight),
-          }"
-        >
+      <div class="flex h-full w-full flex-col">
+        <div :style="{ height: numberToPx(userConfig.headerHeight) }">
           <SysLogo :show-title="false" />
         </div>
-
-        <div class="hidden-scrollbar min-h-0 flex-1 overflow-y-auto">
+        <div class="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <SysMenu
             :inverted="userConfig.invertedAside"
             v-model:active="menuStore.topActiveName"
@@ -31,156 +23,120 @@
           />
         </div>
       </div>
-    </NLayoutSider>
+    </aside>
 
-    <NLayoutSider
+    <aside
       v-if="isPc && userConfig.fixedSubMenu && showSecondAside"
-      :inverted="userConfig.invertedAside"
-      :width="userConfig.asideWidth"
-      bordered
+      class="z-10 h-full shrink-0 border-r"
+      :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-sidebar text-sidebar-foreground'"
       :style="{
-        zIndex: 2,
+        width: numberToPx(systemConfig.asideCollapse ? systemConfig.asideCollapseWidth : userConfig.asideWidth),
       }"
-      collapse-mode="width"
-      :collapsed="systemConfig.asideCollapse"
-      :collapsed-width="systemConfig.asideCollapseWidth"
-      content-style="min-width: 0"
     >
-      <div class="h-full w-full flex flex-col">
-        <div
-          :style="{
-            height: numberToPx(userConfig.headerHeight),
-          }"
-        >
-          <div class="h-full flex items-center justify-between px-4">
+      <div class="flex h-full w-full flex-col">
+        <div :style="{ height: numberToPx(userConfig.headerHeight) }">
+          <div class="flex h-full items-center justify-between px-4">
             <SysLogo v-if="!systemConfig.asideCollapse" :show-logo="false" />
-            <div class="px-2">
-              <NTooltip placement="bottom">
-                <template #trigger>
-                  <div class="flex-center p-1">
-                    <i
-                      class="i-pixel:thumbtack-solid cursor-pointer text-xl text-primary"
-                      @click="toggleFixedSubMenu(false)"
-                    ></i>
-                  </div>
-                </template>
-                <span>取消固定</span>
-              </NTooltip>
-            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger as-child>
+                  <button
+                    type="button"
+                    class="flex items-center justify-center p-1"
+                    aria-label="取消固定侧边栏"
+                    @click="toggleFixedSubMenu(false)"
+                  >
+                    <IPixelThumbtackSolid class="cursor-pointer text-xl text-primary" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">取消固定</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
-
-        <div class="hidden-scrollbar min-h-0 flex-1 overflow-y-auto">
+        <div class="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <SysSubMenu
             :data="menuStore.subMenuRoutes"
             v-model:active="menuStore.activeMenu"
-            :collapsed="appStore.systemConfig.asideCollapse"
+            :collapsed="systemConfig.asideCollapse"
           />
         </div>
       </div>
-    </NLayoutSider>
-    <NLayout>
-      <NLayoutHeader
-        :inverted="userConfig.invertedHeader"
-        bordered
-        :style="{
-          height: numberToPx(userConfig.headerHeight),
-        }"
+    </aside>
+
+    <div class="relative min-w-0 flex-1">
+      <header
+        class="relative z-[1] flex shrink-0 border-b"
+        :class="userConfig.invertedHeader ? 'bg-zinc-900 text-zinc-100' : 'bg-background'"
+        :style="{ height: numberToPx(userConfig.headerHeight) }"
       >
         <AppHeader :show-logo="!isPc" :show-aside-control="showAsideControl">
           <AppBreadcrumb v-if="showAppBreadcrumb" />
         </AppHeader>
-      </NLayoutHeader>
-      <NLayoutHeader
+      </header>
+      <header
         v-if="userConfig.showTabs"
-        bordered
-        :style="{
-          height: numberToPx(userConfig.tabHeight),
-        }"
+        class="relative z-[1] shrink-0 border-b bg-background"
+        :style="{ height: numberToPx(userConfig.tabHeight) }"
       >
         <AppTabs />
-      </NLayoutHeader>
-      <NLayoutContent
-        embedded
-        :native-scrollbar="false"
-        :content-style="{
-          height: '100%',
-        }"
-        position="absolute"
+      </header>
+      <main
+        class="absolute left-0 right-0 overflow-auto"
         :style="layoutContentStyle"
         :ref="(el) => el && appStore.setLayoutContentRef(el as HTMLElement)"
       >
         <AppRouterView v-if="showRouterView" />
-      </NLayoutContent>
-      <NLayoutFooter
+      </main>
+      <footer
         v-if="userConfig.showFooter"
-        bordered
-        position="absolute"
-        :style="{
-          height: numberToPx(userConfig.footerHeight),
-        }"
+        class="absolute inset-x-0 bottom-0 z-[1] border-t bg-background"
+        :style="{ height: numberToPx(userConfig.footerHeight) }"
       >
         <AppFooter />
-      </NLayoutFooter>
+      </footer>
 
-      <NLayout
+      <div
         v-if="isPc && showSubMenu && !userConfig.fixedSubMenu && showSecondAside"
         ref="target"
-        has-sider
-        position="absolute"
-        class="shadow-lg"
-        :style="{
-          left: 0,
-          top: 0,
-          width: numberToPx(userConfig.asideWidth),
-        }"
+        class="absolute bottom-0 left-0 top-0 z-20 shadow-lg"
+        :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-sidebar text-sidebar-foreground'"
+        :style="{ width: numberToPx(userConfig.asideWidth) }"
       >
-        <NLayoutHeader
-          :inverted="userConfig.invertedAside"
-          :style="{
-            height: numberToPx(userConfig.headerHeight),
-          }"
-        >
-          <div class="h-full flex items-center justify-between px-4">
+        <header class="flex border-b" :style="{ height: numberToPx(userConfig.headerHeight) }">
+          <div class="flex h-full w-full items-center justify-between px-4">
             <SysLogo :show-logo="false" />
-            <div class="px-2">
-              <NTooltip placement="bottom">
-                <template #trigger>
-                  <div class="flex-center p-1">
-                    <i
-                      class="i-pixel:thumbtack cursor-pointer text-xl text-primary"
-                      @click="toggleFixedSubMenu(true)"
-                    ></i>
-                  </div>
-                </template>
-                <span>固定</span>
-              </NTooltip>
-            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger as-child>
+                  <button
+                    type="button"
+                    class="flex items-center justify-center p-1"
+                    aria-label="固定侧边栏"
+                    @click="toggleFixedSubMenu(true)"
+                  >
+                    <IPixelThumbtack class="cursor-pointer text-xl text-primary" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">固定</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
-        </NLayoutHeader>
-        <NLayoutSider
-          position="absolute"
-          :style="{
-            top: numberToPx(userConfig.headerHeight),
-            bottom: 0,
-          }"
-          :inverted="userConfig.invertedAside"
-          width="100%"
-          :native-scrollbar="false"
-        >
+        </header>
+        <div class="absolute inset-x-0 bottom-0 overflow-y-auto" :style="{ top: numberToPx(userConfig.headerHeight) }">
           <SysSubMenu
             :data="menuStore.subMenuRoutes"
             v-model:active="menuStore.activeMenu"
             @change="handleSubmenuChange"
           />
-        </NLayoutSider>
-      </NLayout>
-    </NLayout>
+        </div>
+      </div>
+    </div>
 
     <AppConfigDrawer v-model:show="showConfigDrawer" />
     <AppMobieDrawer v-model:show="showMenuDrawer" />
     <AppSearchModal v-model:show="showSearchModal" />
-  </NLayout>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -197,35 +153,22 @@ import SysLogo from '@/layouts/components/common/SysLogo.vue'
 import SysMenu from './components/SysMenu.vue'
 import AppSearchModal from '@/layouts/components/AppSearchModal.vue'
 import SysSubMenu from './components/SysSubMenu.vue'
-
 import { onClickOutside } from '@vueuse/core'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const menuStore = useMenuStore()
-
 const appStore = useAppStore()
 const { userConfig, systemConfig, showConfigDrawer, isMobile, showMenuDrawer, showRouterView, isPc, showSearchModal } =
   storeToRefs(appStore)
 
-const layoutContentStyle = computed(() => {
-  const style = {
-    top: `calc(${numberToPx(userConfig.value.headerHeight)} + ${userConfig.value.showTabs ? numberToPx(userConfig.value.tabHeight) : '0px'})`,
-    bottom: userConfig.value.showFooter ? numberToPx(userConfig.value.footerHeight) : '0px',
-    padding: numberToPx(userConfig.value.gap),
-  }
-  return style
-})
+const layoutContentStyle = computed(() => ({
+  top: `calc(${numberToPx(userConfig.value.headerHeight)} + ${userConfig.value.showTabs ? numberToPx(userConfig.value.tabHeight) : '0px'})`,
+  bottom: userConfig.value.showFooter ? numberToPx(userConfig.value.footerHeight) : '0px',
+  padding: numberToPx(userConfig.value.gap),
+}))
 
-const showAppBreadcrumb = computed(() => {
-  if (!userConfig.value.showBreadcrumb) return false
-  if (isMobile.value) return false
-  return true
-})
-
-const showAsideControl = computed(() => {
-  if (!isPc.value) return false
-  return true
-})
-
+const showAppBreadcrumb = computed(() => userConfig.value.showBreadcrumb && !isMobile.value)
+const showAsideControl = computed(() => isPc.value)
 const showSubMenu = ref(false)
 const target = useTemplateRef<HTMLElement>('target')
 
@@ -233,11 +176,7 @@ onClickOutside(target, () => {
   showSubMenu.value = false
 })
 
-const showSecondAside = computed(() => {
-  if (!isPc.value) return false
-  if (menuStore.subMenuRoutes.length > 0) return true
-  return false
-})
+const showSecondAside = computed(() => isPc.value && menuStore.subMenuRoutes.length > 0)
 
 function handleSubmenuChange() {
   showSubMenu.value = false
@@ -248,8 +187,6 @@ function toggleFixedSubMenu(fixed: boolean) {
 }
 
 function handleFirstLevenChange(show: boolean) {
-  showSubMenu.value = show
+  showSubMenu.value = Boolean(show)
 }
 </script>
-
-<style scoped></style>

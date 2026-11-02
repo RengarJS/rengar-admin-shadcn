@@ -1,9 +1,9 @@
 <template>
-  <NCard class="h-full">
-    <iframe src="https://www.rengar.site/doc" class="size-full"></iframe>
-  </NCard>
+  <DocFrame src="https://www.rengar.site/doc" title="Rengar Admin 文档" />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import DocFrame from '@/components/DocFrame/index.vue'
+</script>
 
 <style scoped></style>

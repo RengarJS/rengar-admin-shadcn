@@ -1,8 +1,8 @@
 <template>
-  <NLayout class="h-screen">
-    <NLayoutHeader
-      bordered
-      :inverted="userConfig.invertedHeader"
+  <div class="relative h-viewport w-full overflow-hidden bg-background">
+    <header
+      class="relative z-[1] flex border-b"
+      :class="userConfig.invertedHeader ? 'bg-zinc-900 text-zinc-100' : 'bg-background'"
       :style="{
         height: numberToPx(userConfig.headerHeight),
       }"
@@ -17,25 +17,22 @@
           v-model:active="menuStore.topActiveName"
         />
       </AppHeader>
-    </NLayoutHeader>
+    </header>
 
-    <NLayout
-      has-sider
-      position="absolute"
+    <div
+      class="absolute inset-x-0 flex"
       :style="{
         top: numberToPx(userConfig.headerHeight),
         bottom: 0,
       }"
     >
-      <NLayoutSider
+      <aside
         v-if="showAppAside"
-        bordered
-        :inverted="userConfig.invertedAside"
-        :native-scrollbar="false"
-        :width="userConfig.asideWidth"
-        collapse-mode="width"
-        :collapsed="systemConfig.asideCollapse"
-        :collapsed-width="systemConfig.asideCollapseWidth"
+        class="shrink-0 overflow-y-auto border-r"
+        :class="userConfig.invertedAside ? 'bg-zinc-900 text-zinc-100' : 'bg-sidebar text-sidebar-foreground'"
+        :style="{
+          width: numberToPx(systemConfig.asideCollapse ? systemConfig.asideCollapseWidth : userConfig.asideWidth),
+        }"
       >
         <SysMenu
           :inverted="userConfig.invertedAside"
@@ -43,49 +40,43 @@
           :data="menuStore.subMenuRoutes"
           :collapsed="systemConfig.asideCollapse"
         />
-      </NLayoutSider>
+      </aside>
 
-      <NLayout>
-        <NLayoutHeader
+      <div class="relative min-w-0 flex-1">
+        <header
           v-if="userConfig.showTabs"
-          bordered
+          class="relative z-[1] shrink-0 border-b bg-background"
           :style="{
             height: numberToPx(userConfig.tabHeight),
           }"
         >
           <AppTabs />
-        </NLayoutHeader>
+        </header>
 
-        <NLayoutContent
-          embedded
-          :native-scrollbar="false"
-          :content-style="{
-            height: '100%',
-          }"
-          position="absolute"
+        <main
+          class="absolute left-0 right-0 overflow-auto"
           :style="layoutContentStyle"
           :ref="(el) => el && appStore.setLayoutContentRef(el as HTMLElement)"
         >
           <AppRouterView v-if="showRouterView" />
-        </NLayoutContent>
+        </main>
 
-        <NLayoutFooter
+        <footer
           v-if="userConfig.showFooter"
-          bordered
-          position="absolute"
+          class="absolute inset-x-0 bottom-0 z-[1] border-t bg-background"
           :style="{
             height: numberToPx(userConfig.footerHeight),
           }"
         >
           <AppFooter />
-        </NLayoutFooter>
-      </NLayout>
-    </NLayout>
+        </footer>
+      </div>
+    </div>
 
     <AppConfigDrawer v-model:show="showConfigDrawer" />
     <AppMobieDrawer v-model:show="showMenuDrawer" />
     <AppSearchModal v-model:show="showSearchModal" />
-  </NLayout>
+  </div>
 </template>
 
 <script setup lang="ts">

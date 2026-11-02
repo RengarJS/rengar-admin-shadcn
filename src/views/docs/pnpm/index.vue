@@ -1,9 +1,9 @@
 <template>
-  <NCard class="h-full">
-    <iframe src="https://pnpm.io/" class="size-full"></iframe>
-  </NCard>
+  <DocFrame src="https://pnpm.io/" title="pnpm 文档" />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import DocFrame from '@/components/DocFrame/index.vue'
+</script>
 
 <style scoped></style>

@@ -1,71 +1,71 @@
 <template>
-  <NCard>
-    <NButton v-role="'btn0011'" type="primary" @click="handleAdd"> 新增角色 </NButton>
-    <NDataTable class="mt-4" :columns :data="tableData" :loading remote :pagination :scroll-x="620"></NDataTable>
-    <AddOrEditModal v-model:show="showModal" :record @success="getPageList" />
-  </NCard>
+  <Card>
+    <CardContent class="pt-6">
+      <Button v-role="'btn0011'" @click="handleAdd">新增角色</Button>
+      <AppDataTable
+        class="mt-4"
+        :columns
+        :data="tableData"
+        :loading
+        :page="pagination.page"
+        :page-size="pagination.pageSize"
+        :total="pagination.itemCount"
+        :scroll-x="620"
+        @update:page="handlePageChange"
+      >
+        <template #cell-status="{ row }">
+          <Badge
+            :class="
+              row.status === 1
+                ? 'border-emerald-600/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                : 'border-destructive/30 bg-destructive/10 text-destructive'
+            "
+          >
+            {{ row.status === 1 ? '启用' : '禁用' }}
+          </Badge>
+        </template>
+        <template #cell-operation="{ row }">
+          <div class="flex flex-wrap items-center gap-2">
+            <Button v-role="'btn0012'" size="sm" variant="outline" @click="handleEdit(row)">编辑</Button>
+            <Button v-role="'btn0014'" size="sm" variant="outline" @click="handleConfigPermmsion(row)">权限配置</Button>
+            <Button v-role="'btn0013'" size="sm" variant="destructive" @click="handleDelete(row)">删除</Button>
+          </div>
+        </template>
+      </AppDataTable>
+      <AddOrEditModal v-model:show="showModal" :record @success="getPageList" />
+    </CardContent>
+  </Card>
 </template>
 
-<script setup lang="tsx">
-import { NButton, NSpace, NTag, type DataTableColumns } from 'naive-ui'
+<script setup lang="ts">
 import { rolePageListApi, roleDeleteApi } from '@/api/setting/role'
 import { to } from 'await-to-js'
 import AddOrEditModal from './components/AddOrEditModal.vue'
 import { useRouterHook } from '@/hooks/router'
+import AppDataTable from '@/components/AppDataTable/index.vue'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 
 const loading = ref(false)
 const tableData = ref<Api.Setting.Role[]>([])
-
-const columns: DataTableColumns<Api.Setting.Role> = [
-  {
-    title: 'id',
-    key: 'id',
-    width: 120,
-  },
-  {
-    title: '角色名称',
-    key: 'name',
-  },
-  {
-    title: '状态',
-    key: 'status',
-    width: 120,
-    render(row) {
-      return <NTag type={row.status === 1 ? 'success' : 'error'}>{row.status === 1 ? '启用' : '禁用'}</NTag>
-    },
-  },
-  {
-    title: '操作',
-    key: 'operation',
-    width: 260,
-    fixed: 'right',
-    render(row) {
-      return (
-        <NSpace>
-          <NButton v-role={'btn0012'} type="primary" onClick={() => handleEdit(row)}>
-            编辑
-          </NButton>
-          <NButton v-role={'btn0014'} type="primary" onClick={() => handleConfigPermmsion(row)}>
-            权限配置
-          </NButton>
-          <NButton v-role={'btn0013'} type="error" onClick={() => handleDelete(row)}>
-            删除
-          </NButton>
-        </NSpace>
-      )
-    },
-  },
+const columns = [
+  { title: 'id', key: 'id' },
+  { title: '角色名称', key: 'name' },
+  { title: '状态', key: 'status' },
+  { title: '操作', key: 'operation', fixed: 'right' as const },
 ]
 
 const pagination = reactive({
   page: 1,
   pageSize: 10,
   itemCount: 0,
-  onChange: (page: number) => {
-    pagination.page = page
-    getPageList()
-  },
 })
+
+function handlePageChange(page: number) {
+  pagination.page = page
+  getPageList()
+}
 
 async function getPageList() {
   loading.value = true
@@ -126,5 +126,3 @@ function handleConfigPermmsion(row: Api.Setting.Role) {
   })
 }
 </script>
-
-<style scoped></style>

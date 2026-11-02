@@ -1,10 +1,17 @@
-import { useMediaQuery } from '@vueuse/core'
-import { useOsTheme } from 'naive-ui'
-import { userConfig as customConfig, bgColor } from '@/config/app'
+import { useMediaQuery, usePreferredDark } from '@vueuse/core'
+import { userConfig as customConfig } from '@/config/app'
 import { themeColor } from '@rengar-admin/color'
 import { injectTailwindCssVarToGlobal } from '@/utils/theme'
 import { cloneDeep } from 'es-toolkit'
-import type { GlobalThemeOverrides } from 'naive-ui'
+
+type AppThemeOverrides = {
+  common: {
+    primaryColor: string
+    primaryColorHover: string
+    primaryColorPressed: string
+    primaryColorSuppl: string
+  }
+}
 
 export const useAppStore = defineStore(
   'app',
@@ -86,7 +93,7 @@ export const useAppStore = defineStore(
       })
     }
 
-    const osTheme = useOsTheme()
+    const prefersDark = usePreferredDark()
 
     // 切换主题按钮的模式
     const themeMode = ref<App.Theme>('auto')
@@ -95,15 +102,10 @@ export const useAppStore = defineStore(
     const theme = computed(() => {
       if (themeMode.value === 'light') return 'light'
       if (themeMode.value === 'dark') return 'dark'
-      return osTheme.value || 'light'
+      return prefersDark.value ? 'dark' : 'light'
     })
 
-    // naive-ui主题颜色覆盖
-    const themeOverrides = reactive<GlobalThemeOverrides>({
-      Layout: {
-        colorEmbedded: theme.value === 'light' ? bgColor : 'transparent',
-        footerColor: theme.value === 'light' ? bgColor : 'transparent',
-      },
+    const themeOverrides = reactive<AppThemeOverrides>({
       common: {
         primaryColor: themeColor.primary.DEFAULT,
         primaryColorHover: themeColor.primary['400'],
@@ -112,10 +114,13 @@ export const useAppStore = defineStore(
       },
     })
 
-    onMounted(() => setDetaultTheme())
+    onMounted(() => {
+      injectTailwindCssVarToGlobal(userConfig.primaryColor, 'primary')
+      setDetaultTheme()
+    })
 
     // 监听系统主题变化，当处于auto模式时触发过渡动画
-    watch(osTheme, () => {
+    watch(prefersDark, () => {
       if (themeMode.value === 'auto') {
         // 直接调用 triggerThemeTransition，不需要事件参数，它会使用屏幕中心
         triggerThemeTransition()
@@ -126,12 +131,8 @@ export const useAppStore = defineStore(
     function setDetaultTheme() {
       if (theme.value === 'dark') {
         document.documentElement.classList.add('dark')
-        themeOverrides.Layout!.colorEmbedded = 'transparent'
-        themeOverrides.Layout!.footerColor = 'transparent'
       } else {
         document.documentElement.classList.remove('dark')
-        themeOverrides.Layout!.colorEmbedded = bgColor
-        themeOverrides.Layout!.footerColor = bgColor
       }
     }
 
@@ -219,7 +220,7 @@ export const useAppStore = defineStore(
         .then(() => {
           const clipPath = [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`]
 
-          const isDark = newThemeMode === 'dark' || (newThemeMode === 'auto' && osTheme.value === 'dark')
+          const isDark = newThemeMode === 'dark' || (newThemeMode === 'auto' && prefersDark.value)
 
           const animate = document.documentElement.animate(
             {

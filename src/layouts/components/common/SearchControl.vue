@@ -1,19 +1,31 @@
 <template>
-  <NTooltip v-if="appStore.isPc" placement="bottom">
-    <template #trigger>
-      <div class="flex-center cursor-pointer rounded-sm p-1 hover:text-primary" @click="appStore.openSearchModal">
-        <IRiSearchLine></IRiSearchLine>
-      </div>
-    </template>
-    <span>搜索</span>
-  </NTooltip>
-  <div v-else class="flex-center cursor-pointer rounded-sm p-1 hover:text-primary" @click="appStore.openSearchModal">
-    <IRiSearchLine></IRiSearchLine>
-  </div>
+  <TooltipProvider>
+    <Tooltip v-if="appStore.isPc">
+      <TooltipTrigger as-child>
+        <button
+          type="button"
+          class="flex cursor-pointer items-center justify-center rounded-sm p-1 hover:text-primary"
+          @click="appStore.openSearchModal"
+        >
+          <IRiSearchLine></IRiSearchLine>
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">搜索</TooltipContent>
+    </Tooltip>
+    <button
+      v-else
+      type="button"
+      class="flex cursor-pointer items-center justify-center rounded-sm p-1 hover:text-primary"
+      @click="appStore.openSearchModal"
+    >
+      <IRiSearchLine></IRiSearchLine>
+    </button>
+  </TooltipProvider>
 </template>
 
 <script setup lang="ts">
 import { useAppStore } from '@/stores'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 const appStore = useAppStore()
 </script>
 

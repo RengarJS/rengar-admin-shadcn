@@ -3,8 +3,7 @@
     <div class="back-wrapper h-full" :class="{ 'back-show': showBack, 'back-hide': !showBack }">
       <div
         v-if="showBack"
-        class="back-container h-full flex-center-x cursor-pointer gap-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-800"
-        style="border-right: solid 1px var(--n-border-color)"
+        class="back-container h-full flex items-center cursor-pointer gap-2 border-r border-border px-3 hover:bg-gray-100 dark:hover:bg-gray-800"
         @click="handleBack"
       >
         <IMaterialSymbolsArrowBackIosNew></IMaterialSymbolsArrowBackIosNew>
@@ -24,67 +23,80 @@
         name="fade"
         class="sort-target h-full w-max flex select-none gap-4 px-4 pt-1 text-sm"
       >
-        <div
-          v-for="(item, index) in tabsList"
-          :key="item.fullPath"
-          class="tab-item px-3 py-1"
-          :class="[
-            item.fullPath === route.fullPath ? 'text-primary dark:text-white bg-primary-100 dark:bg-primary-700' : '',
-          ]"
-          :ref="(el) => setItemRef(el as HTMLElement, item.fullPath)"
-          @click="handleJump(item.fullPath)"
-          @contextmenu.prevent="handleRightClick(item.fullPath)"
-        >
-          <NDropdown
-            trigger="manual"
-            :options="renderOptions(item, index)"
-            :show="dropdownVisible[item.fullPath]"
-            :on-clickoutside="handleCloseDropdown"
-            @select="(key) => handleSelect(key, item)"
-          >
+        <ContextMenu v-for="(item, index) in tabsList" :key="item.fullPath">
+          <ContextMenuTrigger as-child>
             <div
-              class="flex items-center gap-2 rounded-lg px-3 py-1"
-              :class="[item.fullPath === route.fullPath ? '' : 'hover:bg-zinc-100 dark:hover:bg-zinc-700']"
+              class="tab-item px-3 py-1"
+              :class="[
+                item.fullPath === route.fullPath
+                  ? 'text-primary dark:text-white bg-primary-100 dark:bg-primary-700'
+                  : '',
+              ]"
+              :ref="(el) => setItemRef(el as HTMLElement, item.fullPath)"
+              @click="handleJump(item.fullPath)"
             >
-              <MenuIcon :options="item" class="handle cursor-move"></MenuIcon>
-              <div class="w-max-[60px] overflow-hidden whitespace-nowrap">{{ item.title }}</div>
               <div
-                v-if="!item.fixedInTab"
-                class="i-material-symbols:close-rounded hover:i-material-symbols:cancel-rounded cursor-pointer text-lg"
-                @click.stop="tabStore.removeTabsAction(item)"
-              ></div>
+                class="flex items-center gap-2 rounded-lg px-3 py-1"
+                :class="[item.fullPath === route.fullPath ? '' : 'hover:bg-zinc-100 dark:hover:bg-zinc-700']"
+              >
+                <MenuIcon :options="item" class="handle cursor-move" />
+                <div class="max-w-[60px] truncate whitespace-nowrap">{{ item.title }}</div>
+                <button
+                  v-if="!item.fixedInTab"
+                  type="button"
+                  class="group/tab-close relative inline-flex size-5 cursor-pointer items-center justify-center text-lg"
+                  aria-label="关闭标签"
+                  @click.stop="tabStore.removeTabsAction(item)"
+                >
+                  <CloseTabIcon class="absolute group-hover/tab-close:hidden" />
+                  <CloseTabHoverIcon class="absolute hidden group-hover/tab-close:block" />
+                </button>
+              </div>
             </div>
-          </NDropdown>
-        </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuItem :disabled="Boolean(item.fixedInTab)" @select="handleSelect('closeCurrent', item)">
+              <IconClose />关闭
+            </ContextMenuItem>
+            <ContextMenuItem @select="handleSelect('closeOther', item)"> <IconCloseOther />关闭其它 </ContextMenuItem>
+            <ContextMenuItem :disabled="index === 0" @select="handleSelect('closeLeft', item)">
+              <IconCloseLeft />关闭左侧
+            </ContextMenuItem>
+            <ContextMenuItem :disabled="index === tabsList.length - 1" @select="handleSelect('closeRight', item)">
+              <IconCloseRight />关闭右侧
+            </ContextMenuItem>
+            <ContextMenuItem @select="handleSelect('closeAll', item)"> <IconCloseAll />关闭所有 </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
       </TransitionGroup>
     </VueDraggable>
 
-    <div class="h-full flex items-center gap-4 px-4 text-lg" style="border-left: solid 1px var(--n-border-color)">
-      <NTooltip v-if="isPc" placement="bottom">
-        <template #trigger>
-          <div class="flex-center cursor-pointer rounded-sm p-1 hover:text-primary" @click="appStore.refreshRouterView">
-            <div class="i-ooui-reload"></div>
-          </div>
-        </template>
-        <span>刷新</span>
-      </NTooltip>
+    <div class="h-full flex items-center gap-4 border-l border-border px-4 text-lg">
+      <Tooltip v-if="isPc">
+        <TooltipTrigger as-child>
+          <Button variant="ghost" size="icon-sm" aria-label="刷新" @click="appStore.refreshRouterView">
+            <IOouiReload />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>刷新</TooltipContent>
+      </Tooltip>
       <div
         v-else
-        class="flex-center cursor-pointer rounded-sm p-1 hover:text-primary"
+        class="flex items-center justify-center cursor-pointer rounded-sm p-1 hover:text-primary"
         @click="appStore.refreshRouterView"
       >
-        <div class="i-ooui-reload"></div>
+        <IOouiReload />
       </div>
 
-      <NTooltip v-if="isPc" placement="bottom">
-        <template #trigger>
-          <div class="flex-center cursor-pointer rounded-sm p-1 hover:text-primary" @click="toggle">
-            <div v-if="isFullscreen" class="i-ooui-exit-fullscreen"></div>
-            <div v-else class="i-ooui-full-screen"></div>
-          </div>
-        </template>
-        <span>内容全屏</span>
-      </NTooltip>
+      <Tooltip v-if="isPc">
+        <TooltipTrigger as-child>
+          <Button variant="ghost" size="icon-sm" aria-label="内容全屏" @click="toggle">
+            <IOouiExitFullscreen v-if="isFullscreen" />
+            <IOouiFullScreen v-else />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>内容全屏</TooltipContent>
+      </Tooltip>
     </div>
   </div>
 </template>
@@ -93,8 +105,17 @@
 import { useTabStore, useAppStore } from '@/stores'
 import { useWindowSize, useDebounceFn, useFullscreen } from '@vueuse/core'
 import { VueDraggable } from 'vue-draggable-plus'
-import type { DropdownOption } from 'naive-ui'
+import CloseTabIcon from '~icons/material-symbols/close-rounded'
+import CloseTabHoverIcon from '~icons/material-symbols/cancel-rounded'
+import IconClose from '~icons/ant-design/close-outlined'
+import IconCloseOther from '~icons/ant-design/column-width-outlined'
+import IconCloseLeft from '~icons/mdi/format-horizontal-align-left'
+import IconCloseRight from '~icons/mdi/format-horizontal-align-right'
+import IconCloseAll from '~icons/ant-design/line-outlined'
 import type { Directive } from 'vue'
+import { Button } from '@/components/ui/button'
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 const route = useRoute()
 const router = useRouter()
@@ -180,57 +201,7 @@ const vDragscroll: Directive<DragScrollHTMLElement> = {
 const tabStore = useTabStore()
 const { tabsList } = storeToRefs(tabStore)
 
-function renderOptions(tab: App.Tab, index: number): DropdownOption[] {
-  return [
-    {
-      label: '关闭',
-      key: 'closeCurrent',
-      icon: () => <div class="i-ant-design:close-outlined"> </div>,
-      disabled: Boolean(tab.fixedInTab),
-    },
-    {
-      label: '关闭其它',
-      key: 'closeOther',
-      icon: () => <div class="i-ant-design:column-width-outlined"> </div>,
-    },
-    {
-      label: '关闭左侧',
-      key: 'closeLeft',
-      icon: () => <div class="i-mdi:format-horizontal-align-left"> </div>,
-      disabled: index === 0,
-    },
-    {
-      label: '关闭右侧',
-      key: 'closeRight',
-      icon: () => <div class="i-mdi:format-horizontal-align-right"> </div>,
-      disabled: index === tabsList.value.length - 1,
-    },
-    {
-      label: '关闭所有',
-      key: 'closeAll',
-      icon: () => <div class="i-ant-design:line-outlined"> </div>,
-    },
-  ]
-}
-
-const dropdownVisible = reactive<Record<string, boolean>>({})
-
-function handleCloseDropdown() {
-  // 隐藏其他下拉菜单
-  Object.keys(dropdownVisible).forEach((key) => {
-    dropdownVisible[key] = false
-  })
-}
-
-function handleRightClick(fullPath: string) {
-  handleCloseDropdown()
-
-  // 显示当前下拉菜单
-  dropdownVisible[fullPath] = true
-}
-
 function handleSelect(key: string, tab: App.Tab) {
-  handleCloseDropdown()
   switch (key) {
     case 'closeCurrent':
       tabStore.removeTabsAction(tab)

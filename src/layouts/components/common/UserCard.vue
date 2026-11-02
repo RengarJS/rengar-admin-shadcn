@@ -1,10 +1,18 @@
 <template>
-  <NDropdown trigger="hover" :options="options" @select="handleSelect">
-    <div class="flex cursor-pointer items-center gap-2 rounded-2xl px-2 py-1 hover:text-primary">
-      <div class="i-line-md:account text-xl"></div>
-      <span v-if="!appStore.isMobile" class="max-w-[120px] truncate text-base">{{ authStore.user?.username }}</span>
-    </div>
-  </NDropdown>
+  <DropdownMenu>
+    <DropdownMenuTrigger as-child>
+      <button type="button" class="flex cursor-pointer items-center gap-2 rounded-2xl px-2 py-1 hover:text-primary">
+        <ILineMdAccount class="text-xl" />
+        <span v-if="!appStore.isMobile" class="max-w-[120px] truncate text-base">{{ authStore.user?.username }}</span>
+      </button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="end">
+      <DropdownMenuItem @select="handleSelect('password')">修改密码</DropdownMenuItem>
+      <DropdownMenuItem class="text-destructive focus:text-destructive" @select="handleSelect('loginout')"
+        >退出登录</DropdownMenuItem
+      >
+    </DropdownMenuContent>
+  </DropdownMenu>
 
   <PasswordModal v-model:show="showModal" />
 </template>
@@ -14,20 +22,10 @@ import { useAuthStore, useAppStore } from '@/stores'
 import { to } from 'await-to-js'
 import { useRouterHook } from '@/hooks/router'
 import PasswordModal from './PasswordModal.vue'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
-
-const options = [
-  {
-    label: '修改密码',
-    key: 'password',
-  },
-  {
-    label: '退出登录',
-    key: 'loginout',
-  },
-]
 
 function handleSelect(key: string) {
   switch (key) {

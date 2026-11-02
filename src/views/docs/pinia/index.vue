@@ -1,9 +1,9 @@
 <template>
-  <NCard class="h-full">
-    <iframe src="https://pinia.vuejs.org/" class="size-full"></iframe>
-  </NCard>
+  <DocFrame src="https://pinia.vuejs.org/" title="Pinia 文档" />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import DocFrame from '@/components/DocFrame/index.vue'
+</script>
 
 <style scoped></style>

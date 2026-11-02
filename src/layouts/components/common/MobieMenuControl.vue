@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex-center cursor-pointer p-1 hover:bg-primary-100 dark:hover:bg-primary-900"
+    class="flex items-center justify-center cursor-pointer p-1 hover:bg-primary-100 dark:hover:bg-primary-900"
     @click="appStore.toggleMenuDrawer(true)"
   >
     <ILineMdCloseToMenuAltTransition class="text-xl text-primary"></ILineMdCloseToMenuAltTransition>

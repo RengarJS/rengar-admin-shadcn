@@ -1,16 +1,16 @@
 <template>
   <div
-    class="relative relative size-screen"
+    class="relative w-viewport h-viewport"
     :style="{
       color: primaryColor,
     }"
   >
-    <div class="absolute-center">
-      <div class="i-local-loading text-[60px]"></div>
+    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+      <SvgIcon local-icon="loading" class="text-[60px]" />
     </div>
 
-    <div class="absolute-center h-10 w-10">
-      <div class="i-local-logo text-[40px]"></div>
+    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-10">
+      <SvgIcon local-icon="logo" class="text-[40px]" />
     </div>
   </div>
 </template>

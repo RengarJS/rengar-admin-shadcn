@@ -1,191 +1,203 @@
 <template>
-  <div>
+  <div class="space-y-4">
     <!-- 欢迎问候语 -->
-    <NCard class="mb-4 from-primary-100 to-primary-50 bg-gradient-to-r dark:from-primary-500 dark:to-primary-200">
-      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex items-center gap-3">
-          <SvgIcon icon="mdi:hand-wave" class="text-4xl text-yellow-500" />
-          <div>
-            <h2 class="text-xl font-bold">欢迎回来，{{ username || '管理员' }}！</h2>
-            <p class="mt-2 text-sm text-gray-600">今天是 {{ currentDate }} {{ getWeekDay() }}，祝您工作愉快！</p>
+    <Card class="from-primary-100 to-primary-50 bg-linear-to-r dark:from-primary-500 dark:to-primary-200">
+      <CardContent class="p-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex items-center gap-3">
+            <SvgIcon icon="mdi:hand-wave" class="text-4xl text-yellow-500" />
+            <div>
+              <h2 class="text-xl font-bold">欢迎回来，{{ username || '管理员' }}！</h2>
+              <p class="mt-2 text-sm text-gray-600">今天是 {{ currentDate }} {{ getWeekDay() }}，祝您工作愉快！</p>
+            </div>
           </div>
-        </div>
-        <NButton type="primary" size="small" @click="refreshData">
-          <template #icon>
+          <Button size="sm" @click="refreshData">
             <SvgIcon icon="mdi:refresh" />
-          </template>
-          刷新数据
-        </NButton>
-      </div>
-    </NCard>
+            刷新数据
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
 
     <!-- 待办事项 -->
-    <NCard class="mb-4 from-blue-50 to-blue-100 bg-gradient-to-r dark:from-blue-800">
-      <div class="mb-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <SvgIcon icon="mdi:clipboard-check" class="text-3xl text-blue-500" />
-          <h3 class="text-lg font-bold">今日待办</h3>
-        </div>
-        <div class="flex gap-2">
-          <NButton quaternary size="small" @click="addTodo">
-            <template #icon>
+    <Card class="from-blue-50 to-blue-100 bg-linear-to-r dark:from-blue-800">
+      <CardContent class="p-6">
+        <div class="mb-4 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <SvgIcon icon="mdi:clipboard-check" class="text-3xl text-blue-500" />
+            <h3 class="text-lg font-bold">今日待办</h3>
+          </div>
+          <div class="flex gap-2">
+            <Button variant="ghost" size="sm" @click="addTodo">
               <SvgIcon icon="mdi:plus" />
-            </template>
-            添加任务
-          </NButton>
-          <NButton quaternary size="small" @click="clearCompletedTodos">
-            <template #icon>
+              添加任务
+            </Button>
+            <Button variant="ghost" size="sm" @click="clearCompletedTodos">
               <SvgIcon icon="mdi:delete-sweep" />
-            </template>
-            清除已完成
-          </NButton>
+              清除已完成
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <div class="custom-scrollbar max-h-60 overflow-y-auto">
-        <TransitionGroup name="todo-list" tag="ul" class="space-y-2">
-          <li v-for="(todo, index) in todos" :key="todo.id" class="group">
-            <div
-              class="flex items-center rounded-lg p-3 transition-all duration-200"
-              :class="[
-                todo.completed ? 'bg-gray-100 dark:bg-gray-700' : 'bg-white dark:bg-gray-800',
-                'hover:shadow-md',
-              ]"
-            >
-              <NCheckbox v-model:checked="todo.completed" @update:checked="updateTodoStatus(index)" />
-              <div class="ml-3 flex-1" :class="{ 'line-through text-gray-400': todo.completed }">
-                {{ todo.text }}
-              </div>
-              <div class="mr-2 text-xs text-gray-400">{{ todo.date }}</div>
-              <NButton
-                quaternary
-                circle
-                size="small"
-                class="opacity-0 transition-opacity group-hover:opacity-100"
-                @click="removeTodo(index)"
+        <div class="custom-scrollbar max-h-60 overflow-y-auto">
+          <TransitionGroup name="todo-list" tag="ul" class="space-y-2">
+            <li v-for="(todo, index) in todos" :key="todo.id" class="group">
+              <div
+                class="flex items-center rounded-lg p-3 transition-all duration-200 hover:shadow-md"
+                :class="todo.completed ? 'bg-gray-100 dark:bg-gray-700' : 'bg-white dark:bg-gray-800'"
               >
-                <template #icon>
+                <Checkbox v-model:checked="todo.completed" @update:checked="updateTodoStatus(index)" />
+                <div class="ml-3 flex-1" :class="{ 'line-through text-gray-400': todo.completed }">
+                  {{ todo.text }}
+                </div>
+                <div class="mr-2 text-xs text-gray-400">{{ todo.date }}</div>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="删除任务"
+                  class="opacity-0 transition-opacity group-hover:opacity-100"
+                  @click="removeTodo(index)"
+                >
                   <SvgIcon icon="mdi:delete" />
-                </template>
-              </NButton>
-            </div>
-          </li>
-        </TransitionGroup>
+                </Button>
+              </div>
+            </li>
+          </TransitionGroup>
 
-        <div v-if="todos.length === 0" class="flex flex-col items-center justify-center py-6 text-gray-400">
-          <SvgIcon name="mdi:clipboard-text" class="mb-2 text-5xl" />
-          <p>暂无待办事项</p>
+          <div v-if="todos.length === 0" class="flex flex-col items-center justify-center py-6 text-gray-400">
+            <SvgIcon icon="mdi:clipboard-text" class="mb-2 text-5xl" />
+            <p>暂无待办事项</p>
+          </div>
         </div>
-      </div>
 
-      <NModal
-        v-model:show="showAddTodoModal"
-        preset="dialog"
-        title="添加新任务"
-        positive-text="确认"
-        negative-text="取消"
-        @positive-click="confirmAddTodo"
-        @negative-click="cancelAddTodo"
-      >
-        <NInput v-model:value="newTodoText" placeholder="请输入任务内容" @keyup.enter="confirmAddTodo" />
-      </NModal>
-    </NCard>
+        <Dialog :open="showAddTodoModal" @update:open="showAddTodoModal = $event">
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>添加新任务</DialogTitle>
+              <DialogDescription>请输入任务内容，然后确认添加。</DialogDescription>
+            </DialogHeader>
+            <Input v-model="newTodoText" placeholder="请输入任务内容" @keyup.enter="confirmAddTodo" />
+            <DialogFooter>
+              <Button variant="outline" @click="cancelAddTodo">取消</Button>
+              <Button @click="confirmAddTodo">确认</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </CardContent>
+    </Card>
 
-    <NGrid cols="1  600:2 1000:4" :x-gap="16" :y-gap="16">
+    <div class="grid grid-cols-1 gap-4 min-[600px]:grid-cols-2 min-[1000px]:grid-cols-4">
       <!-- 统计卡片 -->
-      <NGridItem class="col-span-24 lg:col-span-6 md:col-span-12 sm:col-span-12">
-        <NCard class="h-full from-blue-50 to-blue-100 bg-gradient-to-r">
+      <Card class="h-full from-blue-50 to-blue-100 bg-linear-to-r">
+        <CardContent class="p-6">
           <div class="flex items-center justify-between">
             <div>
               <div class="text-lg text-black font-bold">项目总数</div>
               <div class="mt-2 text-3xl text-black font-bold">16</div>
             </div>
-            <div class="size-16 flex-center rounded-full bg-blue-500 text-white">
+            <div class="size-16 flex items-center justify-center rounded-full bg-blue-500 text-white">
               <SvgIcon icon="mdi:folder" class="text-3xl" />
             </div>
           </div>
           <div class="mt-4 text-sm text-gray-500">较昨日 +2 个项目</div>
-        </NCard>
-      </NGridItem>
+        </CardContent>
+      </Card>
 
-      <NGridItem class="col-span-24 lg:col-span-6 md:col-span-12 sm:col-span-12">
-        <NCard class="h-full from-green-50 to-green-100 bg-gradient-to-r">
+      <Card class="h-full from-green-50 to-green-100 bg-linear-to-r">
+        <CardContent class="p-6">
           <div class="flex items-center justify-between">
             <div>
               <div class="text-lg text-black font-bold">活跃用户</div>
               <div class="mt-2 text-3xl text-black font-bold">3,856</div>
             </div>
-            <div class="size-16 flex-center rounded-full bg-green-500 text-white">
+            <div class="size-16 flex items-center justify-center rounded-full bg-green-500 text-white">
               <SvgIcon icon="mdi:account" class="text-3xl" />
             </div>
           </div>
           <div class="mt-4 text-sm text-gray-500">较昨日 +12%</div>
-        </NCard>
-      </NGridItem>
+        </CardContent>
+      </Card>
 
-      <NGridItem class="col-span-24 lg:col-span-6 md:col-span-12 sm:col-span-12">
-        <NCard class="h-full from-yellow-50 to-yellow-100 bg-gradient-to-r">
+      <Card class="h-full from-yellow-50 to-yellow-100 bg-linear-to-r">
+        <CardContent class="p-6">
           <div class="flex items-center justify-between">
             <div>
               <div class="text-lg text-black font-bold">系统消息</div>
               <div class="mt-2 text-3xl text-black font-bold">258</div>
             </div>
-            <div class="size-16 flex-center rounded-full bg-yellow-500 text-white">
+            <div class="size-16 flex items-center justify-center rounded-full bg-yellow-500 text-white">
               <SvgIcon icon="mdi:bell" class="text-3xl" />
             </div>
           </div>
           <div class="mt-4 text-sm text-gray-500">较昨日 +48 条</div>
-        </NCard>
-      </NGridItem>
+        </CardContent>
+      </Card>
 
-      <NGridItem class="col-span-24 lg:col-span-6 md:col-span-12 sm:col-span-12">
-        <NCard class="h-full from-red-50 to-red-100 bg-gradient-to-r">
+      <Card class="h-full from-red-50 to-red-100 bg-linear-to-r">
+        <CardContent class="p-6">
           <div class="flex items-center justify-between">
             <div>
               <div class="text-lg text-black font-bold">错误日志</div>
               <div class="mt-2 text-3xl text-black font-bold">12</div>
             </div>
-            <div class="size-16 flex-center rounded-full bg-red-500 text-white">
+            <div class="size-16 flex items-center justify-center rounded-full bg-red-500 text-white">
               <SvgIcon icon="mdi:alert-circle" class="text-3xl" />
             </div>
           </div>
           <div class="mt-4 text-sm text-gray-500">较昨日 -25%</div>
-        </NCard>
-      </NGridItem>
-    </NGrid>
+        </CardContent>
+      </Card>
+    </div>
 
-    <NGrid responsive="screen" cols="1 s:2" :x-gap="16" :y-gap="16" class="mt-4">
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <!-- 图表区域 -->
-      <NGridItem class="col-span-24 lg:col-span-16 md:col-span-24">
-        <NCard title="访问量趋势" class="h-full">
+      <Card class="h-full lg:col-span-2">
+        <CardHeader>
+          <CardTitle>访问量趋势</CardTitle>
+        </CardHeader>
+        <CardContent>
           <VChart class="h-80 w-full" animate :option="visitOption" autoresize />
-        </NCard>
-      </NGridItem>
+        </CardContent>
+      </Card>
 
-      <NGridItem class="col-span-24 lg:col-span-8 md:col-span-24">
-        <NCard title="用户分布" class="h-full">
+      <Card class="h-full">
+        <CardHeader>
+          <CardTitle>用户分布</CardTitle>
+        </CardHeader>
+        <CardContent>
           <VChart class="h-80 w-full" :option="pieOption" autoresize />
-        </NCard>
-      </NGridItem>
-    </NGrid>
+        </CardContent>
+      </Card>
+    </div>
 
-    <NCard title="技术栈" class="mt-4">
-      <NGrid cols="1 600:2  1000:4" :x-gap="16" :y-gap="16" class="mt-4">
-        <NGridItem v-for="(tech, index) in techStacks" :key="index">
-          <NCard class="h-full cursor-pointer transition-all duration-300 hover:shadow-lg" @click="openLink(tech.url)">
-            <div class="flex items-center gap-3">
+    <Card>
+      <CardHeader>
+        <CardTitle>技术栈</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div class="grid grid-cols-1 gap-4 min-[600px]:grid-cols-2 min-[1000px]:grid-cols-4">
+          <Card
+            v-for="(tech, index) in techStacks"
+            :key="index"
+            class="h-full cursor-pointer transition-all duration-300 hover:shadow-lg"
+            role="link"
+            tabindex="0"
+            @click="openLink(tech.url)"
+            @keydown.enter="openLink(tech.url)"
+          >
+            <CardContent class="flex items-center gap-3 p-6">
               <div class="text-3xl" :class="tech.color">
-                <SvgIcon icon="material-symbols:tools-wrench-outline" class="text-primary" />
+                <SvgIcon :icon="tech.icon" />
               </div>
               <div>
                 <div class="text-lg font-bold">{{ tech.name }}</div>
                 <div class="mt-3 text-sm text-gray-600">{{ tech.description }}</div>
               </div>
-            </div>
-          </NCard>
-        </NGridItem>
-      </NGrid>
-    </NCard>
+            </CardContent>
+          </Card>
+        </div>
+      </CardContent>
+    </Card>
   </div>
 </template>
 
@@ -196,9 +208,18 @@ import { LineChart, PieChart } from 'echarts/charts'
 import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from 'echarts/components'
 import VChart from 'vue-echarts'
 import { ref, computed, onMounted, watch } from 'vue'
-
-// 导入Naive UI组件
-import { NCard, NButton, NGrid, NGridItem, NCheckbox, NModal, NInput } from 'naive-ui'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 
 // 导入用户认证存储
 import { useAuthStore } from '@/stores'
@@ -249,20 +270,20 @@ const techStacks = [
     color: 'text-purple-500',
   },
   {
-    name: 'Naive UI',
-    version: 'v2.42.0',
-    description: 'Vue3组件库',
-    url: 'https://www.naiveui.com/',
+    name: 'shadcn-vue',
+    version: 'Vue',
+    description: '基于 Reka UI 的 Vue 组件集合',
+    url: 'https://www.shadcn-vue.com/',
     icon: 'logos:vue',
     color: 'text-primary',
   },
   {
-    name: 'UnoCSS',
-    version: 'v66.3.3',
-    description: '即时原子CSS引擎',
-    url: 'https://unocss.dev/',
-    icon: 'logos:vue',
-    color: 'text-gray-800',
+    name: 'Tailwind CSS',
+    version: 'v4',
+    description: '实用优先的 CSS 框架',
+    url: 'https://tailwindcss.com/',
+    icon: 'logos:tailwindcss-icon',
+    color: 'text-sky-500',
   },
   {
     name: 'Pinia',

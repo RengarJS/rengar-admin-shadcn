@@ -1,110 +1,161 @@
 <template>
-  <div>
-    <NGrid cols="1 800:2 1200:3" :x-gap="16" :y-gap="16">
-      <NGridItem>
-        <NSpin :show="menuLoading">
-          <NCard title="菜单管理" size="small">
-            <template #header-extra>
-              <NButton v-role="'btn0001'" type="primary" size="small" @click="handleAddMenu(1)">添加顶级菜单</NButton>
-            </template>
+  <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <Card>
+      <CardHeader class="flex flex-row items-center justify-between space-y-0">
+        <CardTitle class="text-base">菜单管理</CardTitle>
+        <Button v-role="'btn0001'" size="sm" @click="handleAddMenu(1)">添加顶级菜单</Button>
+      </CardHeader>
+      <CardContent class="relative">
+        <div class="my-2"><Input v-model="pattern" placeholder="搜索菜单" /></div>
+        <div v-if="menuLoading" class="absolute inset-0 z-10 flex items-center justify-center bg-background/70">
+          <Spinner class="size-6" />
+        </div>
+        <div v-if="menuTree.length" class="space-y-1">
+          <MenuTreeNode
+            v-for="node in menuTree"
+            :key="node.id"
+            :node="node"
+            :selected-id="selectedKeys[0]"
+            :pattern="pattern"
+            @select="handleSelectMenu"
+            @copy="handleCopy"
+          />
+        </div>
+        <Empty v-else-if="!menuLoading" class="py-8"
+          ><EmptyHeader><EmptyTitle>暂无菜单</EmptyTitle></EmptyHeader></Empty
+        >
+      </CardContent>
+    </Card>
 
-            <div class="my-4">
-              <NInput v-model:value="pattern" placeholder="搜索菜单" />
+    <Card>
+      <CardHeader class="flex flex-row items-center justify-between space-y-0">
+        <CardTitle class="truncate text-base">{{ currentMenu?.name || '菜单详情' }}</CardTitle>
+        <div v-if="currentMenu" class="flex items-center gap-2">
+          <Button v-role="'btn0002'" size="sm" variant="outline" @click="handleAddMenu(2)">添加子菜单</Button>
+          <Button v-role="'btn0003'" size="sm" variant="destructive" @click="handleRemoveMenu">删除</Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Alert v-if="!currentMenu"
+          ><AlertTitle>温馨提示</AlertTitle><AlertDescription>点击菜单开始</AlertDescription></Alert
+        >
+        <form v-else class="my-2 grid gap-4" @submit.prevent="handleSubmit">
+          <div class="grid gap-2">
+            <Label for="edit-menu-name">菜单名称</Label>
+            <Input
+              id="edit-menu-name"
+              v-model="formData.name"
+              placeholder="菜单名称"
+              :aria-invalid="!!errors.name"
+              @blur="validateField('name')"
+              @input="validateField('name')"
+            />
+            <p v-if="errors.name" class="text-sm text-destructive">{{ errors.name }}</p>
+          </div>
+          <div class="grid gap-2">
+            <Label for="edit-menu-code">菜单code</Label>
+            <div class="flex items-center gap-2">
+              <Input id="edit-menu-code" v-model="formData.code" disabled placeholder="菜单code" class="flex-1" />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label="复制菜单 code"
+                @click="handleCopy(formData.code)"
+                ><Copy class="size-4"
+              /></Button>
             </div>
-
-            <NTree
-              v-model:selected-keys="selectedKeys"
-              :data="menuTree"
-              :pattern
-              block-line
-              label-field="name"
-              key-field="id"
-              :render-suffix="renderSuffix"
-              :show-irrelevant-nodes="true"
-              :node-props="nodeProps"
+          </div>
+          <div class="grid gap-2">
+            <Label for="edit-menu-sort">排序</Label>
+            <Input
+              id="edit-menu-sort"
+              v-model.number="formData.sort"
+              type="number"
+              min="1"
+              step="1"
+              placeholder="序号"
+              :aria-invalid="!!errors.sort"
+              @blur="validateField('sort')"
+              @input="validateField('sort')"
+            />
+            <p v-if="errors.sort" class="text-sm text-destructive">{{ errors.sort }}</p>
+          </div>
+          <fieldset class="grid gap-2">
+            <legend class="text-sm font-medium">状态</legend>
+            <RadioGroup
+              :model-value="String(formData.status ?? '')"
+              class="flex gap-5"
+              @update:model-value="handleStatusChange"
             >
-            </NTree>
-          </NCard>
-        </NSpin>
-      </NGridItem>
+              <label class="flex items-center gap-2 text-sm"><RadioGroupItem value="1" />启用</label>
+              <label class="flex items-center gap-2 text-sm"><RadioGroupItem value="0" />禁用</label>
+            </RadioGroup>
+            <p v-if="errors.status" class="text-sm text-destructive">{{ errors.status }}</p>
+          </fieldset>
+          <div class="flex justify-center">
+            <Button v-role="'btn0004'" type="submit" size="sm" :disabled="menuEditLoading"
+              ><Spinner v-if="menuEditLoading" class="mr-2 size-4" />保存</Button
+            >
+          </div>
+        </form>
+      </CardContent>
+    </Card>
 
-      <NGridItem>
-        <NCard size="small" :title="currentMenu?.name">
-          <NAlert title="温馨提示" type="info">点击菜单开始</NAlert>
-          <template v-if="currentMenu" #header-extra>
-            <NSpace>
-              <NButton v-role="'btn0002'" type="primary" ghost size="small" @click="handleAddMenu(2)"
-                >添加子菜单</NButton
-              >
-              <NButton v-role="'btn0003'" type="error" ghost size="small" @click="handleRemoveMenu">删除</NButton>
-            </NSpace>
+    <Card class="md:col-span-2 xl:col-span-1">
+      <CardHeader class="flex flex-row items-center justify-between space-y-0">
+        <CardTitle class="text-base">按钮管理</CardTitle>
+        <Button v-if="currentMenu" v-role="'btn0006'" size="sm" variant="outline" @click="handleButtonAdd"
+          >添加按钮</Button
+        >
+      </CardHeader>
+      <CardContent>
+        <Alert v-if="!currentMenu"
+          ><AlertTitle>温馨提示</AlertTitle><AlertDescription>点击菜单开始</AlertDescription></Alert
+        >
+        <AppDataTable
+          v-else
+          :columns="buttonColumns"
+          :data="buttonList"
+          :loading="buttonLoading"
+          :page="1"
+          :page-size="Math.max(buttonList.length, 1)"
+          :total="0"
+        >
+          <template #cell-code="{ row }">
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-primary">{{ row.code }}</span
+              ><button type="button" class="text-primary" aria-label="复制按钮 code" @click="handleCopy(row.code)">
+                <Copy class="size-4" />
+              </button>
+            </div>
           </template>
-
-          <NForm
-            v-if="currentMenu"
-            ref="formRef"
-            :model="formData"
-            :rules
-            class="my-4"
-            size="small"
-            label-placement="left"
-            label-width="auto"
+          <template #cell-status="{ row }"
+            ><Badge
+              :class="
+                row.status === 1
+                  ? 'border-emerald-600/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                  : 'border-destructive/30 bg-destructive/10 text-destructive'
+              "
+              >{{ row.status === 1 ? '启用' : '禁用' }}</Badge
+            ></template
           >
-            <NFormItem label="菜单名称" path="name">
-              <NInput v-model:value="formData.name" placeholder="菜单名称" />
-            </NFormItem>
-            <NFormItem label="菜单code" path="code">
-              <div class="w-full flex items-center gap-4">
-                <NInput v-model:value="formData.code" disabled placeholder="菜单code" class="flex-1" />
-                <div
-                  class="i-tabler:copy cursor-pointer text-base text-primary"
-                  @click="handleCopy(formData.code)"
-                ></div>
-              </div>
-            </NFormItem>
-
-            <NFormItem label="排序" path="sort">
-              <NInputNumber v-model:value="formData.sort" :min="1" :precision="0" placeholder="序号" />
-            </NFormItem>
-
-            <NFormItem label="状态" path="status">
-              <NRadioGroup v-model:value="formData.status">
-                <NRadio :value="1">启用</NRadio>
-                <NRadio :value="0">禁用</NRadio>
-              </NRadioGroup>
-            </NFormItem>
-
-            <NFormItem>
-              <div class="w-full flex-center">
-                <NButton
-                  v-role="'btn0004'"
-                  :loading="menuEditLoading"
-                  type="primary"
-                  attr-type="submit"
-                  size="small"
-                  @click="handleSubmit"
-                  >保存
-                </NButton>
-              </div>
-            </NFormItem>
-          </NForm>
-        </NCard>
-      </NGridItem>
-
-      <NGridItem>
-        <NCard size="small" title="按钮管理">
-          <NAlert v-if="!currentMenu" title="温馨提示" type="info">点击菜单开始</NAlert>
-          <template v-if="currentMenu" #header-extra>
-            <NSpace>
-              <NButton v-role="'btn0006'" type="primary" ghost size="small" @click="handleButtonAdd">添加按钮</NButton>
-            </NSpace>
+          <template #cell-action="{ row }">
+            <div class="flex items-center gap-2">
+              <Button v-role="'btn0007'" size="sm" variant="ghost" @click="handleButtonEdit(row)">编辑</Button>
+              <Button
+                v-role="'btn0008'"
+                size="sm"
+                variant="ghost"
+                class="text-destructive hover:text-destructive"
+                @click="handleButtonDelete(row)"
+                >删除</Button
+              >
+            </div>
           </template>
-
-          <NDataTable v-if="currentMenu" size="small" class="mt-4" :columns :data="buttonList" :loading="buttonLoading">
-          </NDataTable>
-        </NCard>
-      </NGridItem>
-    </NGrid>
+        </AppDataTable>
+      </CardContent>
+    </Card>
 
     <MenuAddModal v-model:show="showMemuModal" :type="addType" :parent="currentMenu" @success="getMenuTree" />
     <ButtonAddModal
@@ -116,22 +167,32 @@
   </div>
 </template>
 
-<script setup lang="tsx">
+<script setup lang="ts">
 import { menuTreeApi, menuEditApi, menuDeleteApi, buttonListApi } from '@/api/setting/menu'
-import { type TreeOption, type FormRules, type FormInst, type DataTableColumns } from 'naive-ui'
-import { withModifiers } from 'vue'
 import { useClipboard } from '@vueuse/core'
 import { to } from 'await-to-js'
 import { cloneDeep } from 'es-toolkit'
+import { Copy } from '@lucide/vue'
 import MenuAddModal from './components/MenuAddModal.vue'
 import ButtonAddModal from './components/ButtonAddModal.vue'
+import MenuTreeNode from './components/MenuTreeNode.vue'
+import AppDataTable from '@/components/AppDataTable/index.vue'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Empty, EmptyHeader, EmptyTitle } from '@/components/ui/empty'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Spinner } from '@/components/ui/spinner'
 
 const menuTree = ref<Api.Setting.MenuTree[]>([])
 const menuLoading = ref(false)
 const selectedKeys = ref<number[]>([])
-
 const formData = ref<Api.Setting.Menu | Recordable>({})
 const currentMenu = ref<Api.Setting.Menu>()
+const errors = reactive({ name: '', sort: '', status: '' })
 
 async function getMenuTree() {
   menuLoading.value = true
@@ -142,45 +203,18 @@ async function getMenuTree() {
 }
 getMenuTree()
 
-function renderSuffix(info: { option: TreeOption; checked: boolean; selected: boolean }) {
-  return (
-    <n-space align="center">
-      <n-text class="text-sm" type="primary">
-        {info.option.code}
-      </n-text>
-      <div
-        class="i-tabler:copy text-base text-primary"
-        onClick={withModifiers(() => {
-          handleCopy(info.option.code as string)
-        }, ['stop'])}
-      ></div>
-    </n-space>
-  )
-}
-
-const { copy } = useClipboard()
-async function handleCopy(text: string) {
-  const [err] = await to(copy(text))
-  if (err) {
-    window.$message?.error('复制失败')
-  } else {
-    window.$message?.success('复制成功')
+function handleSelectMenu(option: Api.Setting.MenuTree) {
+  if (option.id === currentMenu.value?.id) {
+    currentMenu.value = undefined
+    selectedKeys.value = []
+    return
   }
-}
-
-const pattern = ref('')
-
-function nodeProps({ option }: { option: TreeOption }) {
-  return {
-    onClick() {
-      if (option.id === currentMenu.value?.id) {
-        currentMenu.value = undefined
-        return
-      }
-      currentMenu.value = option as unknown as Api.Setting.Menu
-      formData.value = cloneDeep(option)
-    },
-  }
+  currentMenu.value = option as Api.Setting.Menu
+  selectedKeys.value = [option.id]
+  formData.value = cloneDeep(option)
+  errors.name = ''
+  errors.sort = ''
+  errors.status = ''
 }
 
 function resetTreeSelect() {
@@ -188,6 +222,14 @@ function resetTreeSelect() {
   selectedKeys.value = []
 }
 
+const { copy } = useClipboard()
+async function handleCopy(text: string) {
+  const [err] = await to(copy(text))
+  if (err) window.$message?.error('复制失败')
+  else window.$message?.success('复制成功')
+}
+
+const pattern = ref('')
 const showMemuModal = ref(false)
 const addType = ref<1 | 2>(1)
 function handleAddMenu(type: 1 | 2) {
@@ -195,17 +237,28 @@ function handleAddMenu(type: 1 | 2) {
   showMemuModal.value = true
 }
 
-const formRef = useTemplateRef<FormInst>('formRef')
-const rules: FormRules = {
-  name: [{ required: true, message: '请输入菜单名称', trigger: ['blur', 'input'] }],
-  sort: [{ required: true, message: '请输入排序', type: 'number', trigger: ['blur', 'input'] }],
-  status: [{ required: true, message: '请选择状态', type: 'number', trigger: ['blur', 'change'] }],
+function validateField(field: keyof typeof errors) {
+  const value = formData.value[field]
+  if (field === 'name' && !value) errors.name = '请输入菜单名称'
+  else if (
+    field === 'sort' &&
+    (typeof value !== 'number' || Number.isNaN(value) || value < 1 || !Number.isInteger(value))
+  )
+    errors.sort = '请输入排序'
+  else if (field === 'status' && typeof value !== 'number') errors.status = '请选择状态'
+  else errors[field] = ''
+  return !errors[field]
+}
+
+function handleStatusChange(value: unknown) {
+  if (typeof value !== 'string') return
+  formData.value.status = Number(value)
+  validateField('status')
 }
 
 const menuEditLoading = ref(false)
 async function handleSubmit() {
-  const [validErr] = await to(formRef.value!.validate())
-  if (validErr) return
+  if (![validateField('name'), validateField('sort'), validateField('status')].every(Boolean)) return
   menuEditLoading.value = true
   const [err] = await to(menuEditApi(formData.value as Api.Setting.Menu))
   menuEditLoading.value = false
@@ -236,61 +289,13 @@ function handleRemoveMenu() {
 const showButtonModal = ref(false)
 const currentButton = ref<Api.Setting.Menu>()
 const buttonList = ref<Api.Setting.Menu[]>([])
-
-const columns: DataTableColumns<Api.Setting.Menu> = [
-  {
-    title: '按钮名称',
-    key: 'name',
-  },
-  {
-    title: '按钮code',
-    key: 'code',
-    render(row) {
-      return (
-        <n-space align="center">
-          <n-text class="text-sm" type="info">
-            {row.code}
-          </n-text>
-          <div
-            class="i-tabler:copy cursor-pointer text-base text-primary"
-            onClick={withModifiers(() => {
-              handleCopy(row.code)
-            }, ['stop'])}
-          ></div>
-        </n-space>
-      )
-    },
-  },
-  {
-    title: '排序',
-    key: 'sort',
-  },
-  {
-    title: '状态',
-    key: 'status',
-    render(row) {
-      return <n-tag type={row.status === 1 ? 'success' : 'error'}>{row.status === 1 ? '启用' : '禁用'}</n-tag>
-    },
-  },
-  {
-    title: '操作',
-    key: 'action',
-    width: 120,
-    render(row) {
-      return (
-        <n-space>
-          <n-button v-role={'btn0007'} type="info" size="small" text onClick={() => handleButtonEdit(row)}>
-            编辑
-          </n-button>
-          <n-button v-role={'btn0008'} type="error" size="small" text onClick={() => handleButtonDelete(row)}>
-            删除
-          </n-button>
-        </n-space>
-      )
-    },
-  },
+const buttonColumns = [
+  { title: '按钮名称', key: 'name' },
+  { title: '按钮code', key: 'code' },
+  { title: '排序', key: 'sort' },
+  { title: '状态', key: 'status' },
+  { title: '操作', key: 'action' },
 ]
-
 const buttonLoading = ref(false)
 async function getButtonList() {
   buttonLoading.value = true
@@ -335,5 +340,3 @@ function handleButtonDelete(data: Api.Setting.Menu) {
   })
 }
 </script>
-
-<style scoped></style>

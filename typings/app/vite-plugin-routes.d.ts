@@ -13,12 +13,10 @@ declare global {
       Record<string, string | number>,
       Record<string, string>,
       | 'docs-es-toolkit'
-      | 'docs-naive-ui'
-      | 'docs-naive-ui-components'
       | 'docs-pinia'
       | 'docs-pnpm'
       | 'docs-rengar-admin'
-      | 'docs-unocss'
+      | 'docs-shadcn-vue'
       | 'docs-vite'
       | 'docs-vue'
       | 'docs-vueuse'
@@ -27,22 +25,6 @@ declare global {
     'docs-es-toolkit': RouteRecordInfo<
       'docs-es-toolkit',
       '/docs/es-toolkit',
-      Record<string, string | number>,
-      Record<string, string>,
-      never
-    >
-    // docs_naive-ui
-    'docs-naive-ui': RouteRecordInfo<
-      'docs-naive-ui',
-      '/docs/naive-ui',
-      Record<string, string | number>,
-      Record<string, string>,
-      never
-    >
-    // docs_naive-ui-components
-    'docs-naive-ui-components': RouteRecordInfo<
-      'docs-naive-ui-components',
-      '/docs/naive-ui-components',
       Record<string, string | number>,
       Record<string, string>,
       never
@@ -71,10 +53,10 @@ declare global {
       Record<string, string>,
       never
     >
-    // docs_unocss
-    'docs-unocss': RouteRecordInfo<
-      'docs-unocss',
-      '/docs/unocss',
+    // docs_shadcn-vue
+    'docs-shadcn-vue': RouteRecordInfo<
+      'docs-shadcn-vue',
+      '/docs/shadcn-vue',
       Record<string, string | number>,
       Record<string, string>,
       never

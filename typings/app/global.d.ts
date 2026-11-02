@@ -1,9 +1,11 @@
 export {}
+import type { DialogService, LoadingBarService } from '@/services/ui-feedback'
+import type { toast } from 'vue-sonner'
+
 declare global {
   interface Window {
-    $loadingBar?: import('naive-ui').LoadingBarProviderInst
-    $dialog: import('naive-ui').DialogProviderInst
-    $message: import('naive-ui').MessageProviderInst
-    $notification: import('naive-ui').NotificationProviderInst
+    $loadingBar?: LoadingBarService
+    $dialog: DialogService
+    $message: typeof toast
   }
 }

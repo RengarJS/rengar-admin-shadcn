@@ -1,84 +1,44 @@
 <template>
-  <NMenu
-    v-model:value="value"
-    :mode
-    :options="menus"
-    :collapsed
-    :collapsed-width="appStore.systemConfig.asideCollapseWidth"
-    :children-field="childrenField"
-    :indent="20"
-    responsive
-    @update:value="handleValueChange"
-  ></NMenu>
+  <nav
+    :class="mode === 'horizontal' ? 'flex min-w-0 items-center gap-1' : 'flex min-w-0 flex-col gap-1 p-2'"
+    :aria-label="mode === 'horizontal' ? '主导航' : '侧边导航'"
+  >
+    <SysMenuItem
+      v-for="item in data"
+      :key="String(item.name)"
+      :route="item"
+      :children-field="childrenField"
+      :active-key="value"
+      :collapsed="collapsed"
+      :inverted="inverted"
+      :mode="mode"
+      @select="handleSelect"
+    />
+  </nav>
 </template>
 
-<script setup lang="tsx">
-import { type MenuOption } from 'naive-ui'
-import { RouterLink, type RouteLocationRaw, type RouteRecordRaw } from 'vue-router'
-import { useAppStore } from '@/stores'
+<script setup lang="ts">
+import type { RouteRecordRaw } from 'vue-router'
+import SysMenuItem from './SysMenuItem.vue'
 
-const appStore = useAppStore()
-
-const emit = defineEmits<{
-  change: [val: RouteRecordName]
-}>()
-
+const emit = defineEmits<{ change: [val: RouteRecordName] }>()
 const {
   childrenField = 'children',
   mode = 'vertical',
   data,
   collapsed,
+  inverted = false,
 } = defineProps<{
   mode?: 'horizontal' | 'vertical'
   data: RouteRecordRaw[]
   collapsed?: boolean
+  inverted?: boolean
   childrenField?: string
 }>()
-
 const value = defineModel<RouteRecordName>('active')
 
-const menus = computed(() => {
-  return generateMenus(data)
-})
-
-function renderLabel(route: RouteRecordRaw) {
-  if (route.meta?.href) {
-    return (
-      <a href={route.meta.href} target="_blank">
-        {route.meta?.title}
-      </a>
-    )
-  }
-
-  return !route.children ? (
-    <RouterLink to={{ name: route.name } as RouteLocationRaw}>{route.meta?.title}</RouterLink>
-  ) : (
-    <span>{route.meta?.title}</span>
-  )
-}
-
-function generateMenus(routes: RouteRecordRaw[]): MenuOption[] {
-  return routes.map((route) => {
-    const menuOption: MenuOption = {
-      label: () => renderLabel(route),
-      key: route.meta?.activeMenu || route.name,
-      icon: () => {
-        return <MenuIcon options={route.meta}></MenuIcon>
-      },
-      meta: route.meta,
-    }
-
-    if (route.children && route.children.length > 0) {
-      menuOption.children = generateMenus(route.children)
-    }
-
-    return menuOption
-  })
-}
-
-function handleValueChange(val: RouteRecordName) {
-  emit('change', val)
+function handleSelect(name: RouteRecordName) {
+  value.value = name
+  emit('change', name)
 }
 </script>
-
-<style scoped></style>

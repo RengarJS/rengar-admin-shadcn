@@ -1,9 +1,9 @@
 <template>
-  <NLayout embedded has-sider class="h-screen">
-    <NLayout>
-      <NLayoutHeader
-        :inverted="userConfig.invertedHeader"
-        bordered
+  <div class="relative flex h-viewport w-full overflow-hidden bg-background">
+    <div class="relative min-w-0 flex-1">
+      <header
+        class="relative z-[1] flex shrink-0 border-b"
+        :class="userConfig.invertedHeader ? 'bg-zinc-900 text-zinc-100' : 'bg-background'"
         :style="{
           height: numberToPx(userConfig.headerHeight),
         }"
@@ -18,45 +18,39 @@
           >
           </SysMenu>
         </AppHeader>
-      </NLayoutHeader>
-      <NLayoutHeader
+      </header>
+      <header
         v-if="userConfig.showTabs"
-        bordered
+        class="relative z-[1] shrink-0 border-b bg-background"
         :style="{
           height: numberToPx(userConfig.tabHeight),
         }"
       >
         <AppTabs />
-      </NLayoutHeader>
+      </header>
 
-      <NLayoutContent
-        embedded
-        :native-scrollbar="false"
-        :content-style="{
-          height: '100%',
-        }"
-        position="absolute"
+      <main
+        class="absolute left-0 right-0 overflow-auto"
         :style="layoutContentStyle"
         :ref="(el) => el && appStore.setLayoutContentRef(el as HTMLElement)"
       >
         <AppRouterView v-if="showRouterView" />
-      </NLayoutContent>
-      <NLayoutFooter
+      </main>
+      <footer
         v-if="userConfig.showFooter"
-        bordered
-        position="absolute"
+        class="absolute inset-x-0 bottom-0 z-[1] border-t bg-background"
         :style="{
           height: numberToPx(userConfig.footerHeight),
         }"
       >
         <AppFooter />
-      </NLayoutFooter>
-    </NLayout>
+      </footer>
+    </div>
 
     <AppConfigDrawer v-model:show="showConfigDrawer" />
     <AppMobileDrawer v-model:show="showMenuDrawer" />
     <AppSearchModal v-model:show="showSearchModal" />
-  </NLayout>
+  </div>
 </template>
 
 <script setup lang="ts">

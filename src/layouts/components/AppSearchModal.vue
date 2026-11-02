@@ -1,106 +1,126 @@
 <template>
-  <NModal
-    v-model:show="show"
-    preset="card"
-    embedded
-    title="搜索"
-    :bordered="false"
-    style="width: 100%; max-width: 600px; position: fixed; top: 20px; left: 0; right: 0; margin: 0 auto"
-  >
-    <div ref="modalRef">
-      <NInput
-        clearable
-        size="large"
-        v-model:value="searchContent"
-        placeholder="搜索菜单页面"
-        @keypress.enter="handleEnter"
-        @keydown="handleKeyDown"
-        @blur="isComposing = false"
-      ></NInput>
+  <Dialog :open="show" @update:open="show = $event">
+    <DialogContent
+      class="fixed left-1/2 top-5 max-h-[calc(100dvh-2.5rem)] w-[calc(100%-2rem)] max-w-[600px] -translate-x-1/2 translate-y-0 overflow-y-auto"
+    >
+      <DialogHeader>
+        <DialogTitle>搜索</DialogTitle>
+        <DialogDescription class="sr-only">搜索菜单页面并使用方向键切换结果</DialogDescription>
+      </DialogHeader>
+      <div>
+        <div class="relative">
+          <Input
+            v-model="searchContent"
+            autofocus
+            placeholder="搜索菜单页面"
+            class="h-10 pr-10"
+            @keypress.enter="handleEnter"
+            @keydown="handleKeyDown"
+            @blur="isComposing = false"
+          />
+          <Button
+            v-if="searchContent"
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            aria-label="清空搜索"
+            class="absolute right-1 top-1/2 -translate-y-1/2"
+            @click="searchContent = ''"
+          >
+            <SvgIcon icon="mdi:close" />
+          </Button>
+        </div>
 
-      <div v-if="!searchContent && searchHistoryMenus.length" class="mt-6">
-        <div class="flex items-center justify-between">
-          <div>历史记录</div>
-          <div class="text-gray-400">
-            <NButton text size="small" type="primary" @click="menuStore.clearSearchHistoryMenus"> 清空 </NButton>
+        <div class="max-h-[50vh] overflow-y-auto pr-1">
+          <div v-if="!searchContent && searchHistoryMenus.length" class="mt-6">
+            <div class="flex items-center justify-between">
+              <div>历史记录</div>
+              <Button variant="link" size="sm" @click="menuStore.clearSearchHistoryMenus">清空</Button>
+            </div>
+            <Card
+              v-for="(route, index) in searchHistoryMenus"
+              :key="route.name"
+              class="mt-3 cursor-pointer gap-0 p-0 transition-colors hover:bg-accent"
+              @click="handleClick(route)"
+            >
+              <CardContent :class="computedContentClass(index)">
+                <div class="flex items-center gap-3 text-base">
+                  <MenuIcon :options="route.meta" />
+                  <div>{{ route.meta?.title }}</div>
+                </div>
+                <IAntDesignCloseOutlined
+                  aria-label="删除搜索历史"
+                  class="cursor-pointer"
+                  @click.stop="menuStore.removeSearchHistoryMenu(route)"
+                />
+              </CardContent>
+            </Card>
+          </div>
+          <div
+            v-if="!searchHistoryMenus.length && !searchRoutes.length"
+            class="mt-6 py-8 text-center text-muted-foreground"
+          >
+            暂无数据
+          </div>
+          <div v-if="searchRoutes.length" class="mt-6">
+            <Card
+              v-for="(route, index) in searchRoutes"
+              :key="route.name"
+              class="cursor-pointer gap-0 p-0 transition-colors hover:bg-accent"
+              :class="index > 0 ? 'mt-3' : ''"
+              @click="handleClick(route)"
+            >
+              <CardContent :class="computedContentClass(index)">
+                <div class="flex items-center gap-3 text-base">
+                  <MenuIcon :options="route.meta" />
+                  <div>{{ route.meta?.title }}</div>
+                </div>
+                <IAntDesignEnterOutlined />
+              </CardContent>
+            </Card>
           </div>
         </div>
-        <NCard
-          v-for="(route, index) in searchHistoryMenus"
-          :ref="(el) => setCardRef(el as CardInst, index)"
-          size="small"
-          hoverable
-          :key="route.name"
-          class="mt-3 cursor-pointer"
-          :content-class="computedContentClass(index)"
-          @click="handleClick(route)"
-        >
-          <div class="flex items-center gap-3 text-base">
-            <MenuIcon :options="route.meta"></MenuIcon>
-
-            <div>{{ route.meta?.title }}</div>
-          </div>
-
-          <div @click.stop="menuStore.removeSearchHistoryMenu(route)" class="i-ant-design:close-outlined"></div>
-        </NCard>
       </div>
-      <NEmpty v-if="!searchHistoryMenus.length && !searchRoutes.length" description="暂无数据" class="mt-6"></NEmpty>
-      <div v-if="searchRoutes.length" class="mt-6">
-        <NCard
-          v-for="(route, index) in searchRoutes"
-          :ref="(el) => setCardRef(el as CardInst, index)"
-          size="small"
-          hoverable
-          :key="route.name"
-          :class="[index > 0 ? 'mt-3' : '']"
-          class="cursor-pointer"
-          :content-class="computedContentClass(index)"
-          @click="handleClick(route)"
-        >
-          <div class="flex items-center gap-3 text-base">
-            <MenuIcon :options="route.meta"></MenuIcon>
 
-            <div>{{ route.meta?.title }}</div>
-          </div>
-
-          <div class="i-ant-design:enter-outlined"></div>
-        </NCard>
-      </div>
-    </div>
-
-    <template #footer>
-      <div class="flex items-center gap-2 text-gray">
-        <div class="border-gary border rounded p-1">
-          <div class="i-ant-design:enter-outlined"></div>
+      <DialogFooter class="flex-row flex-wrap justify-start gap-2 text-sm text-muted-foreground sm:justify-start">
+        <div class="flex items-center gap-2">
+          <kbd class="rounded border px-1 py-0.5"><IAntDesignEnterOutlined /></kbd>
+          <span class="mr-2">选择</span>
         </div>
-        <div class="mr-4">选择</div>
-        <div class="border-gary border rounded p-1">
-          <div class="i-ant-design:arrow-up-outlined"></div>
+        <div class="flex items-center gap-2">
+          <kbd class="rounded border px-1 py-0.5"><IAntDesignArrowUpOutlined /></kbd>
+          <kbd class="rounded border px-1 py-0.5"><IAntDesignArrowDownOutlined /></kbd>
+          <span class="mr-2">切换</span>
         </div>
-
-        <div class="border-gary border rounded p-1">
-          <div class="i-ant-design:arrow-down-outlined"></div>
+        <div class="flex items-center gap-2">
+          <kbd class="rounded border px-1 py-0.5">Del</kbd>
+          <span>删除</span>
         </div>
-
-        <div class="mr-4">切换</div>
-
-        <div class="border-gary border rounded p-1">Del</div>
-        <div>删除</div>
-        <div class="border-gary ml-4 border rounded p-1">Esc</div>
-        <div>关闭</div>
-      </div>
-    </template>
-  </NModal>
+        <div class="flex items-center gap-2">
+          <kbd class="rounded border px-1 py-0.5">Esc</kbd>
+          <span>关闭</span>
+        </div>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { useMenuStore } from '@/stores'
 import { useRouterHook } from '@/hooks/router'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import type { RouteRecordRaw } from 'vue-router'
-import type { NCard } from 'naive-ui'
-
-type CardInst = InstanceType<typeof NCard>
 
 const show = defineModel<boolean>('show', {
   required: true,
@@ -112,7 +132,6 @@ const { menuRoutes, searchHistoryMenus } = storeToRefs(menuStore)
 
 const searchContent = ref('')
 const activeIndex = ref(-1) // 修改默认值为-1，表示无选中项
-const cardRefs = ref<CardInst[]>([])
 
 let isComposing = false
 function handleKeyDown(e: KeyboardEvent) {
@@ -218,12 +237,6 @@ function handleRemove(route: RouteRecordRaw) {
 
 const { routerPushByName } = useRouterHook()
 
-function setCardRef(el: CardInst | null, index: number) {
-  if (!cardRefs.value[index]) {
-    cardRefs.value[index] = el as never
-  }
-}
-
 function handleEnter() {
   if (searchContent.value && searchRoutes.value.length > 0) {
     // 搜索模式
@@ -296,7 +309,8 @@ const searchRoutes = computed(() => {
 function computedContentClass(index: number) {
   const classes = [
     'flex items-center justify-between',
-    index === activeIndex.value ? 'bg-primary/20 dark:bg-primary/30 p-3 rounded' : '',
+    'p-3',
+    index === activeIndex.value ? 'bg-primary/20 dark:bg-primary/30 rounded' : '',
   ]
   return classes.filter(Boolean).join(' ')
 }

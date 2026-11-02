@@ -11,8 +11,6 @@ import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 // ✅ 新增：导入 eslint-plugin-prettier
 import pluginPrettier from 'eslint-plugin-prettier'
 
-import unocss from '@unocss/eslint-config/flat'
-
 configureVueProject({
   scriptLangs: ['ts', 'tsx'],
 })
@@ -30,8 +28,6 @@ export default defineConfigWithVueTs(
   vueTsConfigs.recommended,
   // 跳过 Prettier 的格式化冲突规则
   skipFormatting,
-  unocss,
-
   // ✅ 新增：注册 prettier 插件并启用规则
   {
     name: 'app/prettier',

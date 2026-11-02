@@ -1,9 +1,9 @@
 <template>
-  <NCard class="h-full">
-    <iframe src="https://ashuicoder.github.io/naive-ui-components/" class="size-full"></iframe>
-  </NCard>
+  <DocFrame src="https://cn.vuejs.org/" title="Vue 文档" />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import DocFrame from '@/components/DocFrame/index.vue'
+</script>
 
 <style scoped></style>

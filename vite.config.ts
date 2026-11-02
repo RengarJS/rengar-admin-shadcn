@@ -32,10 +32,6 @@ export default defineConfig(({ mode }) => {
                 name: 'vue',
                 test: /node_modules[\\/](vue|vue-router|pinia)/,
               },
-              {
-                name: 'naive-ui',
-                test: /node_modules[\\/]naive-ui/,
-              },
             ],
           },
         },

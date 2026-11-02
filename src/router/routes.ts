@@ -33,24 +33,6 @@ export const routes: RouteRecordRaw[] = [
         },
       },
       {
-        name: 'docs-naive-ui',
-        path: 'naive-ui',
-        component: () => import('@/views/docs/naive-ui/index.vue'),
-        meta: {
-          title: 'naive-ui',
-          order: 2,
-        },
-      },
-      {
-        name: 'docs-naive-ui-components',
-        path: 'naive-ui-components',
-        component: () => import('@/views/docs/naive-ui-components/index.vue'),
-        meta: {
-          title: 'naive-ui-components',
-          order: 6,
-        },
-      },
-      {
         name: 'docs-pinia',
         path: 'pinia',
         component: () => import('@/views/docs/pinia/index.vue'),
@@ -77,12 +59,11 @@ export const routes: RouteRecordRaw[] = [
         },
       },
       {
-        name: 'docs-unocss',
-        path: 'unocss',
-        component: () => import('@/views/docs/unocss/index.vue'),
+        name: 'docs-shadcn-vue',
+        path: 'shadcn-vue',
+        component: () => import('@/views/docs/shadcn-vue/index.vue'),
         meta: {
-          title: 'unocss',
-          order: 9,
+          title: 'docs_shadcn-vue',
         },
       },
       {
@@ -130,7 +111,7 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@/views/example/href/index.vue'),
         meta: {
           title: '外部链接',
-          href: 'https://www.naiveui.com/zh-CN/os-theme',
+          href: 'https://www.shadcn-vue.com/',
           order: 2,
         },
       },
@@ -179,19 +160,14 @@ export const routes: RouteRecordRaw[] = [
         path: 'menu',
         component: () => import('@/views/setting/menu/index.vue'),
         meta: {
-          title: '菜单设置',
-          order: 1,
-          roles: 'menu0002',
+          title: 'setting_menu',
         },
       },
       {
         name: 'setting-permission',
         path: 'permission',
-        redirect: '/setting/permission/list',
         meta: {
-          title: '权限管理',
-          order: 4,
-          roles: 'menu0005',
+          title: 'setting_permission',
         },
         children: [
           {
@@ -199,8 +175,7 @@ export const routes: RouteRecordRaw[] = [
             path: 'list',
             component: () => import('@/views/setting/permission/list/index.vue'),
             meta: {
-              title: '权限列表',
-              hideInMenu: true,
+              title: 'setting_permission_list',
             },
           },
         ],
@@ -220,10 +195,7 @@ export const routes: RouteRecordRaw[] = [
             path: 'config/:id',
             component: () => import('@/views/setting/role/config/[id].vue'),
             meta: {
-              title: '角色配置',
-              hideInMenu: true,
-              activeMenu: 'setting-role',
-              roles: 'menu0007',
+              title: 'setting_role_config',
             },
           },
           {
@@ -231,10 +203,7 @@ export const routes: RouteRecordRaw[] = [
             path: 'list',
             component: () => import('@/views/setting/role/list/index.vue'),
             meta: {
-              title: '角色列表',
-              hideInMenu: true,
-              activeMenu: 'setting-role',
-              roles: 'menu0006',
+              title: 'setting_role_list',
             },
           },
         ],
@@ -244,9 +213,7 @@ export const routes: RouteRecordRaw[] = [
         path: 'user',
         component: () => import('@/views/setting/user/index.vue'),
         meta: {
-          title: '用户管理',
-          roles: 'menu0004',
-          order: 3,
+          title: 'setting_user',
         },
       },
     ],

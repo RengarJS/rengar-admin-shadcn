@@ -1,20 +1,32 @@
 <template>
-  <NTooltip v-if="appStore.isPc" placement="bottom">
-    <template #trigger>
-      <div class="flex-center cursor-pointer rounded-sm p-1 hover:text-primary" @click="appStore.toggleConfigDrawer">
-        <IClaritySettingsLine></IClaritySettingsLine>
-      </div>
-    </template>
-    <span>系统配置</span>
-  </NTooltip>
+  <TooltipProvider>
+    <Tooltip v-if="appStore.isPc">
+      <TooltipTrigger as-child>
+        <button
+          type="button"
+          class="flex cursor-pointer items-center justify-center rounded-sm p-1 hover:text-primary"
+          @click="appStore.toggleConfigDrawer"
+        >
+          <IClaritySettingsLine></IClaritySettingsLine>
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">系统配置</TooltipContent>
+    </Tooltip>
 
-  <div v-else class="flex-center cursor-pointer rounded-sm p-1 hover:text-primary" @click="appStore.toggleConfigDrawer">
-    <IClaritySettingsLine></IClaritySettingsLine>
-  </div>
+    <button
+      v-else
+      type="button"
+      class="flex cursor-pointer items-center justify-center rounded-sm p-1 hover:text-primary"
+      @click="appStore.toggleConfigDrawer"
+    >
+      <IClaritySettingsLine></IClaritySettingsLine>
+    </button>
+  </TooltipProvider>
 </template>
 
 <script setup lang="ts">
 import { useAppStore } from '@/stores'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 const appStore = useAppStore()
 </script>
 

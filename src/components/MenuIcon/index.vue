@@ -4,11 +4,12 @@
     <component v-else :is="iconComponent" :="$attrs" />
   </template>
   <SvgIcon v-else-if="options.localIcon" :local-icon="options.localIcon" :="$attrs" />
-  <div v-else class="i-ic:baseline-menu" :="$attrs"></div>
+  <DefaultMenuIcon v-else :="$attrs" />
 </template>
 
 <script setup lang="ts">
 import { isExtra, extraRoutesConfig } from '@/router/config'
+import DefaultMenuIcon from '~icons/ic/baseline-menu'
 
 interface IconInfo {
   icon?: string

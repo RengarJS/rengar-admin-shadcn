@@ -1,6 +1,5 @@
 import path from 'path'
 import AutoImport from 'unplugin-auto-import/vite'
-import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import IconsResolver from 'unplugin-icons/resolver'
 
@@ -8,18 +7,11 @@ import type { PluginOption } from 'vite'
 export function setupAutoImportPlugin(): PluginOption[] {
   const plugins: PluginOption[] = [
     AutoImport({
-      imports: [
-        'vue',
-        'vue-router',
-        'pinia',
-        {
-          'naive-ui': ['useDialog', 'useMessage', 'useNotification', 'useLoadingBar'],
-        },
-      ],
+      imports: ['vue', 'vue-router', 'pinia'],
       dts: path.resolve(process.cwd(), 'typings/app/auto-imports.d.ts'),
     }),
     Components({
-      resolvers: [IconsResolver(), NaiveUiResolver()],
+      resolvers: [IconsResolver()],
       dts: path.resolve(process.cwd(), 'typings/app/components.d.ts'),
       directoryAsNamespace: true,
     }),

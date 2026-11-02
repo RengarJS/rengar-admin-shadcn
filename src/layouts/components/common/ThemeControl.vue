@@ -1,26 +1,43 @@
 <template>
-  <NTooltip v-if="appStore.isPc" placement="bottom">
-    <template #trigger>
-      <div class="flex-center cursor-pointer rounded-sm p-1 hover:text-primary" @click="appStore.toggleTheme">
-        <i v-if="appStore.themeMode === 'light'" class="i-material-symbols:light-mode-outline"></i>
-        <i v-else-if="appStore.themeMode === 'dark'" class="i-material-symbols:dark-mode-outline"></i>
-        <i v-else class="i-material-symbols:hdr-auto-outline"></i>
-      </div>
-    </template>
-    <span v-if="appStore.themeMode === 'light'">浅色</span>
-    <span v-else-if="appStore.themeMode === 'dark'">深色</span>
-    <span v-else>跟随系统</span>
-  </NTooltip>
+  <TooltipProvider>
+    <Tooltip v-if="appStore.isPc">
+      <TooltipTrigger as-child>
+        <button
+          type="button"
+          class="flex cursor-pointer items-center justify-center rounded-sm p-1 hover:text-primary"
+          @click="appStore.toggleTheme"
+        >
+          <LightModeIcon v-if="appStore.themeMode === 'light'" />
+          <DarkModeIcon v-else-if="appStore.themeMode === 'dark'" />
+          <AutoModeIcon v-else />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">
+        <span v-if="appStore.themeMode === 'light'">浅色</span>
+        <span v-else-if="appStore.themeMode === 'dark'">深色</span>
+        <span v-else>跟随系统</span>
+      </TooltipContent>
+    </Tooltip>
 
-  <div v-else class="flex-center cursor-pointer rounded-sm p-1 hover:text-primary" @click="appStore.toggleTheme">
-    <i v-if="appStore.themeMode === 'light'" class="i-material-symbols:light-mode-outline"></i>
-    <i v-else-if="appStore.themeMode === 'dark'" class="i-material-symbols:dark-mode-outline"></i>
-    <i v-else class="i-material-symbols:hdr-auto-outline"></i>
-  </div>
+    <button
+      v-else
+      type="button"
+      class="flex cursor-pointer items-center justify-center rounded-sm p-1 hover:text-primary"
+      @click="appStore.toggleTheme"
+    >
+      <LightModeIcon v-if="appStore.themeMode === 'light'" />
+      <DarkModeIcon v-else-if="appStore.themeMode === 'dark'" />
+      <AutoModeIcon v-else />
+    </button>
+  </TooltipProvider>
 </template>
 
 <script setup lang="ts">
+import LightModeIcon from '~icons/material-symbols/light-mode-outline'
+import DarkModeIcon from '~icons/material-symbols/dark-mode-outline'
+import AutoModeIcon from '~icons/material-symbols/hdr-auto-outline'
 import { useAppStore } from '@/stores'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 const appStore = useAppStore()
 </script>
 

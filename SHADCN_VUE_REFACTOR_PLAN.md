@@ -2,7 +2,20 @@
 
 > 目标项目：`rengar-admin`（Vue 3.5、TypeScript、Vite、Vue Router、Pinia）
 > 范围：仅替换 UI 层与 UI 库适配层；保持接口、业务规则、权限、路由行为和状态语义不变。
-> 当前结论：Tailwind CSS v4 与 shadcn-vue 已在项目中配置；本次会把现存 UnoCSS 功能迁至 Tailwind CSS，并在迁移门禁通过后移除 UnoCSS。
+> 当前结论：Tailwind CSS v4 与 shadcn-vue 已在项目中配置；本轮已把现存 UnoCSS 功能迁至 Tailwind CSS，并从项目配置与依赖图移除 UnoCSS。
+
+## 执行状态（2026-11-02）
+
+阶段复选框表示该步骤要求的实现与验证是否都完成；代码已迁移但缺少手动回归的步骤仍保持未勾选。
+
+| 阶段 | 执行情况 | 尚需处理 |
+| --- | --- | --- |
+| 0–1 | 完成源码与依赖盘点；Tailwind/shadcn token、主题、全局样式基础已迁移 | 原界面截图、尺寸和主题视觉基线未能复核 |
+| 2 | UnoCSS utilities、快捷类、图标、主题色、reset、插件、文档与依赖已迁走 | 未完成 Tailwind-only 下全页面手工视觉对照 |
+| 3–9 | 全局反馈、登录/管理表单、布局导航、表格、菜单树、权限树、示例页及 Naive UI 运行时引用已迁移；`naive-ui` 和 UnoCSS 已从 manifest/lockfile 移除 | 手动交互矩阵尚未完成；表单使用页面边界校验映射来保留原规则，没有引入 vee-validate 表单状态重写 |
+| 10 | Vite 生产构建通过；静态引用扫描和 `git diff --check` 通过；lockfile YAML 可解析且根 importer 与 manifest 一致 | `vue-tsc` 受两个现有 shadcn 源码可选组件依赖缺失影响；pnpm 离线 lockfile 校验受 registry metadata 缺失影响；浏览器回归待完成 |
+
+本轮构建结果：生产构建成功；修改过的 Vue/TS 应用文件 ESLint 通过，`git diff --check`、Naive UI/UnoCSS 静态扫描通过；lockfile YAML 可解析且根 importer 与 `package.json` 匹配。`vue-tsc --build` 仍报告 `src/components/ui/calendar/Calendar.vue` 缺少 `@internationalized/date`、`src/components/ui/chart/index.ts` 缺少 `@unovis/vue`。这些是已安装但当前页面未使用的 shadcn 源码组件依赖，尚未通过联网或改动依赖图处理。pnpm 离线 lockfile 校验因本地镜像缺少 `@ampproject/remapping` metadata 未完成；没有执行全量安装。手动浏览器与真实接口交互回归仍是发布前必做项。
 
 ## 1. 重构目标与决策
 
@@ -120,7 +133,7 @@
 - [ ] 把 `window.$dialog.warning` 的删除/退出确认迁到统一确认适配器（可用 AlertDialog 控制层）。覆盖用户删除、角色删除、菜单删除、按钮删除、退出登录；确认进行中的请求仍显示 loading，失败时保持对话框并允许重试，成功后才关闭并刷新列表/路由。
 - [ ] 将 `src/hooks/update.tsx` 的 `useNotification` 与 NButton 改为 Sonner 或项目通知组件，保留更新说明、刷新动作、关闭行为和可访问操作按钮。
 - [ ] 将 `src/router/guard.ts` 的 `start/finish/error` 替换为应用级轻量路由进度服务，保留触发条件和结束时机。
-- [ ] 建立共用表单字段/错误展示约定，使用已安装 vee-validate/Zod；仅迁移 NForm 对应验证职责，保留各页面原始 `validate()` 后才能提交的控制流。优先单独迁移一个简单表单验证薄片确认 API。
+- [ ] 建立表单字段/错误展示约定；沿用页面级校验边界映射 Naive `NForm` 行为，或在不改变规则、触发时机及提交控制流时使用 vee-validate/Zod。保留各页面原始 `validate()` 后才能提交的语义。
 - [ ] 完成后更新 `typings/app/global.d.ts`、生成的 auto-import 声明与调用方类型；在适配器完成前，页面不得直接依赖 Naive Provider 类型。
 
 **完成条件：** 删除和退出仍需明确确认；异步失败不会误关闭；通知和加载条不依赖 Naive Provider；验证失败不触发业务请求。
@@ -188,7 +201,7 @@
 - [ ] 删除/改造 `NCustomEle`，先用 `rg` 确认引用；如果没有使用则作为 Naive 依赖清理项移除，不能遗留 `--text-color-base` 或 `--body-color` 变量引用。
 - [ ] 删除 `NaiveUiResolver` 和 AutoImport 中 Naive 函数；保留 `Components`、`IconsResolver` 或其他仍需插件。更新并检查 `typings/app/auto-imports.d.ts`、`components.d.ts`、`global.d.ts`；生成文件依项目流程生成，不能只删手写类型而不刷新声明。
 - [ ] 删除 `vite.config.ts` 中 Naive 专属 rollup chunk group；检查 `build/plugins`、源码、脚本和声明里无 Naive 导入/类型。
-- [ ] 此阶段先保留 `package.json` 与 lockfile 中的 `naive-ui`，等阶段 10 的交互回归和删除前门禁全部通过后再卸载。
+- [x] 本轮在 Naive UI 源码、Provider、类型、构建分包与自动导入清理后，已从 `package.json` 和 lockfile 移除 `naive-ui`；最终手动交互验收仍按阶段 10 待完成。
 
 **完成条件：** 源码、生成声明、打包配置和 UI 运行时均不再使用 Naive UI；暂时只在依赖清单中保留它，等待最终验收。
 
@@ -196,7 +209,7 @@
 
 #### 静态与构建门禁
 
-- [ ] 依赖仍在 `package.json` 时，先跑 `pnpm type-check`、`pnpm build`；记录并区分迁移错误与仓库原有错误，不能以“此前就有”替代本次差异审查。
+- [ ] Naive UI 已从依赖清单移除；本轮直接运行 type-check 和生产构建并记录差异。当前构建通过，类型检查只报未安装的 shadcn Calendar/Chart 源码依赖，pnpm 锁文件校验还受离线 metadata 缺失影响。
 - [ ] 卸载前 `rg` 检查 `src`、`build`、`typings` 与构建配置：没有 Naive 导入/类型/解析器/provider/`N*` 组件或运行 API；没有 `virtual:uno.css`、`@unocss`、Uno plugin/config、Uno shortcut 或只由 Uno 生成的图标类。
 
 #### 交互回归矩阵
@@ -209,7 +222,7 @@
 - [ ] 菜单与角色：树搜索/选择/取消、复制 code、菜单/按钮增删改、表单错误、角色树全选/半选/取消、最终权限 ID 与原算法结果一致。
 - [ ] 首页/其他：待办增删和完成、刷新/空输入提示、localStorage 重载、图表显示、404 返回及回首页、更新通知刷新动作。
 - [ ] 逐种 layout 做至少一次可视尺寸检查；桌面宽屏、平板和手机宽度重点查看溢出、弹层滚动、焦点和表格横向滚动。
-- [ ] 上述功能与视觉回归都通过后，执行第 7 节删除前门禁；从 `package.json` 移除 `naive-ui`，用 pnpm 更新 lockfile，再跑 `pnpm why naive-ui`、`pnpm type-check`、`pnpm build` 和依赖树/静态搜索确认。
+- [ ] 手动功能与视觉回归通过后，复核第 7 节删除前门禁；本轮已从 `package.json` 和 `pnpm-lock.yaml` 清除 `naive-ui`，仍需在 pnpm 环境可用时跑 `pnpm why naive-ui`、`pnpm type-check`、`pnpm build` 与依赖树检查。
 
 **完成条件：** UnoCSS 和 Naive UI 均已移除；静态检查、依赖图、类型检查、生产构建、权限角色差异核对及交互矩阵均有结果记录。
 
