@@ -5,6 +5,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 import { setupUnocssPlugin } from './unocss'
+import { setupTailwindcsslugin } from './tailwindcss'
 import { setupRouter } from './router'
 import { setupAutoImportPlugin } from './auto-import'
 import { setupInject } from './inject'
@@ -19,6 +20,7 @@ export function setupVitePlugins() {
     vueDevTools(),
     setupRouter(),
     setupUnocssPlugin(),
+    setupTailwindcsslugin(),
     ...setupAutoImportPlugin(),
     setupVersion(),
   ]

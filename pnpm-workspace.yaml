@@ -6,3 +6,10 @@ packages:
 allowBuilds:
   esbuild: true
   vue-demi: true
+
+
+# 允许根目录直接安装依赖，不需要 -w
+ignoreWorkspaceRootCheck: true
+
+# 自动链接本地 workspace 包
+linkWorkspacePackages: true
