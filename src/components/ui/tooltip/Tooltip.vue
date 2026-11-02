@@ -2,7 +2,9 @@
 import type { TooltipRootEmits, TooltipRootProps } from "reka-ui"
 import { TooltipRoot, useForwardPropsEmits } from "reka-ui"
 
-const props = defineProps<TooltipRootProps>()
+const props = withDefaults(defineProps<TooltipRootProps>(), {
+  ignoreNonKeyboardFocus: true,
+})
 const emits = defineEmits<TooltipRootEmits>()
 
 const forwarded = useForwardPropsEmits(props, emits)
