@@ -1,5 +1,5 @@
 <template>
-  <Toaster :theme="appStore.theme" position="top-right" rich-colors />
+  <Toaster :theme="appStore.theme" position="top-center" rich-colors />
 
   <div
     class="pointer-events-none fixed inset-x-0 top-0 z-[100] h-0.5"
